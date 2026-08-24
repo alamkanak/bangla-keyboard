@@ -54,19 +54,22 @@ The engine is a platform-agnostic Rust library that handles all keyboard logic:
 
 ```
 bangla-keyboard/
-├── crates/
-│   ├── engine-core/       # Transliteration, key maps, dictionary, buffer management
-│   ├── engine-ffi/        # C FFI bindings generated via cbindgen
-│   └── tauri-settings/    # Tauri app for settings/preferences UI
-├── platform/
-│   ├── macos/             # Xcode project: Swift/ObjC IMK shell
-│   └── windows/           # CMake project: C++ TSF shell
-├── data/
-│   ├── dictionary/        # Bangla word list (zstd-compressed)
-│   ├── autocorrect/       # Autocorrect entries (JSON)
-│   └── layouts/           # Layout definition files (JSON)
+├── app/                       # IME application
+│   ├── crates/
+│   │   ├── engine-core/       # Transliteration, key maps, dictionary, buffer management
+│   │   ├── engine-ffi/        # C FFI bindings generated via cbindgen
+│   │   └── tauri-settings/    # Tauri app for settings/preferences UI
+│   ├── platform/
+│   │   ├── macos/             # Xcode project: Swift/ObjC IMK shell
+│   │   └── windows/           # CMake project: C++ TSF shell
+│   ├── data/
+│   │   ├── dictionary/        # Bangla word list (zstd-compressed)
+│   │   ├── autocorrect/       # Autocorrect entries (JSON)
+│   │   └── layouts/           # Layout definition files (JSON)
+│   ├── .mise.toml                 # Project-scoped tooling (Rust, Node, etc.)
+│   └── Cargo.toml                 # Cargo workspace root
 ├── docs/
-└── Cargo.toml             # Workspace root
+└── README.md
 ```
 
 ### Key Rust Dependencies

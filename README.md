@@ -2,6 +2,13 @@
 
 A macOS + Windows input method supporting UniBijoy and Phonetic keyboard layouts for typing in Bangla.
 
+```
+bangla-keyboard/
+├── app/          # IME application (Rust + platform shells)
+│   └── .mise.toml  # Project-scoped tooling (Rust, Node, etc.)
+└── docs/         # Documentation
+```
+
 ## Prerequisites
 
 - macOS: Xcode 15+ (for InputMethodKit)
@@ -10,7 +17,7 @@ A macOS + Windows input method supporting UniBijoy and Phonetic keyboard layouts
 
 ## Setup
 
-1. `git clone <repo-url> && cd bangla-keyboard`
+1. `git clone <repo-url> && cd bangla-keyboard/app`
 2. `mise install` — installs Rust, Node, cbindgen, Tauri CLI (project-scoped)
 3. `mise exec -- cargo binstall -y cbindgen tauri-cli` — install cargo tools
 

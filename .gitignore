@@ -1,21 +1,20 @@
 # Rust
-target/
-Cargo.lock
+app/target/
 
 # mise local installs
 .mise/
 
 # Tauri
-crates/tauri-settings/src-tauri/target/
+app/crates/tauri-settings/src-tauri/target/
 
 # macOS
 .DS_Store
-platform/macos/build/
-platform/macos/DerivedData/
+app/platform/macos/build/
+app/platform/macos/DerivedData/
 *.xcuserdata
 
 # Windows
-platform/windows/build/
+app/platform/windows/build/
 *.obj
 *.pdb
 

@@ -13,13 +13,16 @@ _.path = ["{{config_root}}/.mise/cargo-bin/bin"]
 run = "cargo test --workspace"
 
 [tasks.dev]
-run = "cd crates/tauri-settings && cargo tauri dev"
+run = "cargo tauri dev"
+dir = "crates/tauri-settings"
 
 [tasks.lint]
 run = "cargo fmt --all && cargo clippy --workspace -- -D warnings"
 
 [tasks.build-macos]
-run = "cd platform/macos && xcodebuild -scheme BanglaKeyboard -configuration Debug"
+run = "xcodebuild -scheme BanglaKeyboard -configuration Debug"
+dir = "platform/macos"
 
 [tasks.build-windows]
-run = "cd platform/windows && cmake -B build && cmake --build build"
+run = "cmake -B build && cmake --build build"
+dir = "platform/windows"
