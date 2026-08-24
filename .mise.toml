@@ -1,0 +1,25 @@
+[tools]
+rust = "stable"
+node = "24"
+
+[tools.cargo-binstall]
+version = "latest"
+
+[env]
+CARGO_INSTALL_ROOT = "{{config_root}}/.mise/cargo-bin"
+_.path = ["{{config_root}}/.mise/cargo-bin/bin"]
+
+[tasks.test]
+run = "cargo test --workspace"
+
+[tasks.dev]
+run = "cd crates/tauri-settings && cargo tauri dev"
+
+[tasks.lint]
+run = "cargo fmt --all && cargo clippy --workspace -- -D warnings"
+
+[tasks.build-macos]
+run = "cd platform/macos && xcodebuild -scheme BanglaKeyboard -configuration Debug"
+
+[tasks.build-windows]
+run = "cd platform/windows && cmake -B build && cmake --build build"

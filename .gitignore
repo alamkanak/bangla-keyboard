@@ -1,0 +1,27 @@
+# Rust
+target/
+Cargo.lock
+
+# mise local installs
+.mise/
+
+# Tauri
+crates/tauri-settings/src-tauri/target/
+
+# macOS
+.DS_Store
+platform/macos/build/
+platform/macos/DerivedData/
+*.xcuserdata
+
+# Windows
+platform/windows/build/
+*.obj
+*.pdb
+
+# Node
+node_modules/
+
+# Editor
+.vscode/settings.json
+*.swp

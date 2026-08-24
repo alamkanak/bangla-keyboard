@@ -129,35 +129,43 @@ The Tauri backend communicates directly with `engine-core` (same Rust process), 
 
 ### Prerequisites
 
-- **Rust:** stable toolchain via `rustup` (both `x86_64` and `aarch64` targets)
+- **mise:** [mise.jdx.dev](https://mise.jdx.dev) — manages Rust, Node, and cargo tools per-project
 - **macOS:** Xcode 15+ (for InputMethodKit SDK and Swift compiler)
 - **Windows:** Visual Studio Build Tools 2022+ (for MSVC and Windows SDK)
-- **Node.js:** for Tauri frontend dev server (optional, only during UI development)
+
+All other tools (Rust stable, Node, cbindgen, Tauri CLI) are installed project-locally via `mise install` using the `.mise.toml` at the repo root.
 
 ### Local Dev Commands
 
 ```bash
+# First-time setup
+mise install
+mise exec -- cargo binstall -y cbindgen tauri-cli
+
 # Run all Rust tests
-cargo test --workspace
+mise run test
 
-# Build macOS IME (from platform/macos/)
-xcodebuild -scheme BanglaKeyboard -configuration Debug
+# Build macOS IME
+mise run build-macos
 
-# Build Windows IME (from platform/windows/)
-cmake -B build && cmake --build build
+# Build Windows IME
+mise run build-windows
 
 # Run Tauri settings app in dev mode
-cd crates/tauri-settings && cargo tauri dev
+mise run dev
 
 # Lint & format
-cargo fmt --all && cargo clippy --workspace -- -D warnings
+mise run lint
+
+# Or use mise exec for ad-hoc commands
+mise exec -- cargo test -- --nocapture
 ```
 
 ### Pre-commit Hooks
 
-- `cargo fmt --check`
-- `cargo clippy -- -D warnings`
-- `cargo test --workspace`
+- `mise exec -- cargo fmt --check`
+- `mise exec -- cargo clippy -- -D warnings`
+- `mise exec -- cargo test --workspace`
 
 ## Packaging & Distribution
 
