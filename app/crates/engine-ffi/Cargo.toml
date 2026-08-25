@@ -8,6 +8,7 @@ crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
 engine-core = { path = "../engine-core" }
+libc = "0.2"
 
 [build-dependencies]
 cbindgen = "0.27"

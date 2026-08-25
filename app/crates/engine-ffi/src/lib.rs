@@ -5,6 +5,16 @@ use std::path::PathBuf;
 use std::ptr;
 use std::sync::Mutex;
 
+// Prevent macOS TCC prompt by moving cwd out of protected folders before main().
+#[used]
+#[cfg_attr(target_os = "macos", link_section = "__DATA,__mod_init_func")]
+static INIT_CWD: unsafe extern "C" fn() = {
+    unsafe extern "C" fn chdir_root() {
+        libc::chdir(b"/\0".as_ptr() as *const libc::c_char);
+    }
+    chdir_root
+};
+
 static ENGINE: Mutex<Option<Engine>> = Mutex::new(None);
 
 /// Initialize the engine with the path to the data directory.
