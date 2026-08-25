@@ -13,6 +13,18 @@
     ['','ৌ','ৈ','ল','ণ','ষ','শ']
   ];
 
+  const nationalNormal = [
+    ['ঙ','য','ড','প','ট','চ','জ','হ','গ','ড়'],
+    ['ৃ','ু','ি','ব','্','া','ক','ত','দ'],
+    ['ঁ','ো','ে','র','ন','স','ম']
+  ];
+
+  const nationalShift = [
+    ['ং','য়','ঢ','ফ','ঠ','ছ','ঝ','ঞ','ঘ','ঢ়'],
+    ['ৗ','ূ','ী','ভ','।','অ','খ','থ','ধ'],
+    ['ঃ','ৌ','ৈ','ল','ণ','ষ','শ']
+  ];
+
   const qwertyRows = [
     ['Q','W','E','R','T','Y','U','I','O','P'],
     ['A','S','D','F','G','H','J','K','L'],
@@ -22,7 +34,9 @@
   let displayRows = $derived(
     layout === 'unibijoy'
       ? (shift ? unibijoyShift : unibijoyNormal)
-      : qwertyRows
+      : layout === 'national'
+        ? (shift ? nationalShift : nationalNormal)
+        : qwertyRows
   );
 </script>
 

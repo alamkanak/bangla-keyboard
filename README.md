@@ -1,6 +1,6 @@
 # Bangla Keyboard
 
-A macOS + Windows input method supporting UniBijoy and Phonetic keyboard layouts for typing in Bangla.
+A macOS + Windows input method supporting Phonetic, UniBijoy, and National (Jatiya) keyboard layouts for typing in Bangla.
 
 ```
 bangla-keyboard/
@@ -36,7 +36,7 @@ cd crates/tauri-settings/src-frontend && npm install && cd ../../..  # frontend 
 ## Run
 
 ```bash
-mise run test          # run all Rust tests (24 tests: phonetic, unibijoy, buffer, etc.)
+mise run test          # run all Rust tests (56 tests: phonetic, unibijoy, national, buffer, layout, etc.)
 mise run dev           # launch settings/onboarding UI in dev mode
 mise run lint          # format + clippy
 mise run build-engine  # build FFI static library (release)

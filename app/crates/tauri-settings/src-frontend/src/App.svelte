@@ -129,7 +129,7 @@
           </div>
         </section>
 
-        {#if showKeyboard && layoutMode === 'unibijoy'}
+        {#if showKeyboard && (layoutMode === 'unibijoy' || layoutMode === 'national')}
           <section class="setting-group">
             <div class="setting-row">
               <Toggle
@@ -138,7 +138,7 @@
                 onchange={(v) => shiftPreview = v}
               />
             </div>
-            <KeyboardViewer layout="unibijoy" shift={shiftPreview} />
+            <KeyboardViewer layout={layoutMode} shift={shiftPreview} />
           </section>
         {/if}
       </div>

@@ -10,7 +10,7 @@
                          │
 ┌────────────────────────┼─────────────────────────────────┐
 │                   Rust Core Engine                       │
-│  Phonetic transliteration · UniBijoy key map · Dictionary│
+│  Phonetic · UniBijoy · National (Jatiya) · Dictionary    │
 │              Exposed via C FFI (cbindgen)                │
 └──────┬─────────────────┼─────────────────────┬───────────┘
        │                 │                     │
@@ -46,7 +46,8 @@
 The engine is a platform-agnostic Rust library that handles all keyboard logic:
 
 - **Phonetic transliteration** — pattern-matching rules converting Roman input to Bangla Unicode (Avro-compatible)
-- **UniBijoy fixed layout** — direct key-to-Unicode character mapping
+- **UniBijoy fixed layout** — direct key-to-Unicode character mapping (2 layers: normal, shift)
+- **National (Jatiya) fixed layout** — BDS 1738:2018 standard with 4 modifier layers (normal, shift, AltGr, shift+AltGr), dead-key vowel logic, reph reordering, chandrabindu interaction, and context-aware backspace
 - **Dictionary & autocorrect** — word prediction, phonetic disambiguation, user-editable entries
 - **Composing buffer** — manages the current input session state, candidate list, and commit logic
 
@@ -105,12 +106,12 @@ bangla-keyboard/
 A standalone Tauri app for managing preferences, shared across both platforms:
 
 - Layout viewer (on-screen keyboard showing active layout)
-- Toggle between UniBijoy and Phonetic modes
+- Toggle between Phonetic, UniBijoy, and National (Jatiya) modes
 - Dictionary and autocorrect management (add/edit/remove entries)
 - Hotkey configuration
 - Auto-update check
 
-The Tauri backend communicates directly with `engine-core` (same Rust process), and the frontend uses vanilla HTML/CSS/JS (no framework needed for a simple settings panel).
+The Tauri backend communicates directly with `engine-core` (same Rust process), and the frontend uses Svelte with i18n support (English and Bangla).
 
 ## Testing Strategy (TDD)
 

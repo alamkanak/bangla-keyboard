@@ -158,9 +158,9 @@
           value={layout}
           onselect={(v) => layout = v}
         />
-        {#if layout === 'unibijoy'}
+        {#if layout === 'unibijoy' || layout === 'national'}
           <div class="layout-preview">
-            <KeyboardViewer layout="unibijoy" shift={false} />
+            <KeyboardViewer layout={layout} shift={false} />
           </div>
         {/if}
       </div>
