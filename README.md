@@ -69,6 +69,13 @@ mise run dev
 
 This launches the Tauri settings/onboarding window in dev mode with hot-reload. The settings app is independent of the IME — the IME handles keyboard input, the settings app configures preferences.
 
+### Restart fresh
+
+```bash
+rm -rf ~/Library/Application\ Support/dev.banglakeyboard.settings
+sudo rm -rf /Users/raquib/Library/Input\ Methods/BanglaKeyboard.app
+```
+
 ## Windows IME
 
 ```bash
