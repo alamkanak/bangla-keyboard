@@ -31,8 +31,8 @@
   --info-subtle: rgba(86, 194, 255, 0.12);
 
   /* Borders */
-  --border: #35373d;
-  --border-hover: #4a4c54;
+  --border: #4a4c54;
+  --border-hover: #62646c;
   --border-focus: #56c2ff;
   --separator: rgba(255, 255, 255, 0.06);
 
@@ -76,8 +76,8 @@
   --text-tertiary: #a0a0ab;
   --text-inverse: #ebebef;
 
-  --border: #e5e5ea;
-  --border-hover: #d0d0d7;
+  --border: #c7c7cf;
+  --border-hover: #b0b0ba;
   --separator: rgba(0, 0, 0, 0.06);
 
   --toggle-off: #c7c7cc;
