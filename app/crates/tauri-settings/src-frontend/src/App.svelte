@@ -3,9 +3,11 @@
   import Button from './components/Button.svelte';
   import Toggle from './components/Toggle.svelte';
   import Select from './components/Select.svelte';
+  import RadioCardGroup from './components/RadioCardGroup.svelte';
   import KeyboardViewer from './components/KeyboardViewer.svelte';
   import Onboarding from './components/Onboarding.svelte';
   import { t, setLocale } from './lib/i18n.js';
+  import { Keyboard, Lightning, Book, Info, Palette, Moon, Sun } from 'phosphor-svelte';
 
   let showOnboarding = $state(true);
   let loading = $state(true);
@@ -14,6 +16,7 @@
   let showKeyboard = $state(true);
   let shiftPreview = $state(false);
   let hotkeyToggle = $state('ctrl+space');
+  let currentTheme = $state('dark');
 
   // Load preferences from backend on startup
   $effect(() => {
@@ -27,6 +30,7 @@
         showOnboarding = !prefs.onboarding_complete;
         layoutMode = prefs.layout;
         setLocale(prefs.language);
+        currentTheme = prefs.theme || 'dark';
         if (prefs.theme === 'light') {
           document.documentElement.setAttribute('data-theme', 'light');
         }
@@ -67,10 +71,11 @@
   }
 
   const sidebarItems = $derived([
-    { id: 'layout', icon: '⌨', label: t('nav.layout') },
-    { id: 'hotkeys', icon: '⚡', label: t('nav.hotkeys') },
-    { id: 'dictionary', icon: '📖', label: t('nav.dictionary') },
-    { id: 'about', icon: 'ℹ', label: t('nav.about') },
+    { id: 'layout', icon: Keyboard, label: t('nav.layout') },
+    { id: 'hotkeys', icon: Lightning, label: t('nav.hotkeys') },
+    { id: 'theme', icon: Palette, label: t('nav.theme') },
+    { id: 'dictionary', icon: Book, label: t('nav.dictionary') },
+    { id: 'about', icon: Info, label: t('nav.about') },
   ]);
 
   const layoutOptions = [
@@ -85,6 +90,21 @@
     { value: 'f1', label: 'F1' },
     { value: 'f12', label: 'F12' },
   ];
+
+  const themeOptions = $derived([
+    { value: 'dark', label: t('theme.dark'), description: t('theme.dark.desc'), icon: Moon },
+    { value: 'light', label: t('theme.light'), description: t('theme.light.desc'), icon: Sun },
+  ]);
+
+  function setTheme(value) {
+    currentTheme = value;
+    if (value === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    savePreference('theme', value);
+  }
 </script>
 
 {#if loading}
@@ -163,10 +183,24 @@
         </section>
       </div>
 
+    {:else if activeSection === 'theme'}
+      <div class="page">
+        <h1 class="page-title">{t('theme.title')}</h1>
+        <p class="page-desc">{t('theme.desc')}</p>
+
+        <section class="setting-group">
+          <RadioCardGroup
+            options={themeOptions}
+            value={currentTheme}
+            onselect={setTheme}
+          />
+        </section>
+      </div>
+
     {:else if activeSection === 'dictionary'}
       <div class="page">
-        <h1 class="page-title">Dictionary</h1>
-        <p class="page-desc">Manage your custom words and autocorrect entries.</p>
+        <h1 class="page-title">{t('dictionary.title')}</h1>
+        <p class="page-desc">{t('dictionary.desc')}</p>
 
         <section class="setting-group">
           <p class="empty-state">Custom dictionary management coming soon.</p>

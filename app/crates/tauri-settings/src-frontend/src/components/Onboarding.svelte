@@ -4,6 +4,7 @@
   import RadioCardGroup from './RadioCardGroup.svelte';
   import KeyboardViewer from './KeyboardViewer.svelte';
   import { t, setLocale, getLocale } from '../lib/i18n.js';
+  import { Moon, Sun, Lightbulb } from 'phosphor-svelte';
 
   let { oncomplete } = $props();
 
@@ -23,8 +24,8 @@
   ]);
 
   const languageOptions = [
-    { value: 'en', label: 'English', description: 'Use English for the app interface', icon: '🇺🇸' },
-    { value: 'bn', label: 'বাংলা', description: 'অ্যাপ ইন্টারফেসের জন্য বাংলা ব্যবহার করুন', icon: '🇧🇩' },
+    { value: 'en', label: 'English', description: 'Use English for the app interface' },
+    { value: 'bn', label: 'বাংলা', description: 'অ্যাপ ইন্টারফেসের জন্য বাংলা ব্যবহার করুন' },
   ];
 
   const layoutOptions = $derived([
@@ -34,8 +35,8 @@
   ]);
 
   const themeOptions = $derived([
-    { value: 'dark', label: t('onboarding.theme.dark'), description: t('onboarding.theme.dark.desc'), icon: '🌙' },
-    { value: 'light', label: t('onboarding.theme.light'), description: t('onboarding.theme.light.desc'), icon: '☀️' },
+    { value: 'dark', label: t('onboarding.theme.dark'), description: t('onboarding.theme.dark.desc'), icon: Moon },
+    { value: 'light', label: t('onboarding.theme.light'), description: t('onboarding.theme.light.desc'), icon: Sun },
   ]);
 
   const isMac = $derived(navigator.platform?.toLowerCase().includes('mac') ?? false);
@@ -144,7 +145,7 @@
         </details>
 
         <div class="switch-hint">
-          <div class="hint-icon">💡</div>
+          <div class="hint-icon"><Lightbulb size={18} weight="fill" /></div>
           <p class="hint-text">{t('onboarding.enable.switchHint')}</p>
         </div>
       </div>
@@ -346,7 +347,9 @@
   }
 
   .hint-icon {
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    color: var(--info);
     line-height: 1;
   }
 

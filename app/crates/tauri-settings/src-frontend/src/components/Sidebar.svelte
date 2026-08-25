@@ -8,13 +8,16 @@
   </div>
   <ul class="sidebar-nav">
     {#each items as item}
+      {@const Icon = item.icon}
       <li>
         <button
           class="sidebar-item"
           class:active={activeId === item.id}
           onclick={() => onselect(item.id)}
         >
-          <span class="sidebar-icon">{item.icon}</span>
+          <span class="sidebar-icon">
+            <Icon size={20} weight="regular" />
+          </span>
           <span class="sidebar-label">{item.label}</span>
         </button>
       </li>
@@ -80,8 +83,10 @@
   }
 
   .sidebar-icon {
-    font-size: 18px;
     width: 24px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
   }
 </style>

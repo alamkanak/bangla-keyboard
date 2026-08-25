@@ -21,7 +21,14 @@
         {/if}
       </div>
       {#if option.icon}
-        <span class="radio-icon">{option.icon}</span>
+        <span class="radio-icon">
+          {#if typeof option.icon === 'string'}
+            {option.icon}
+          {:else}
+            {@const Icon = option.icon}
+            <Icon size={24} weight="regular" />
+          {/if}
+        </span>
       {/if}
     </button>
   {/each}
@@ -104,5 +111,9 @@
   .radio-icon {
     font-size: 24px;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
   }
 </style>

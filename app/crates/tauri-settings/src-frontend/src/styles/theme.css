@@ -36,6 +36,9 @@
   --border-focus: #56c2ff;
   --separator: rgba(255, 255, 255, 0.06);
 
+  /* Toggle */
+  --toggle-off: #4a4c54;
+
   /* Spacing */
   --space-xs: 4px;
   --space-sm: 8px;
@@ -76,4 +79,6 @@
   --border: #e5e5ea;
   --border-hover: #d0d0d7;
   --separator: rgba(0, 0, 0, 0.06);
+
+  --toggle-off: #c7c7cc;
 }

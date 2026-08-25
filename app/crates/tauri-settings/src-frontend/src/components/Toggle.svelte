@@ -36,7 +36,7 @@
     height: 24px;
     border: none;
     border-radius: var(--radius-full);
-    background: var(--surface);
+    background: var(--toggle-off);
     cursor: pointer;
     transition: background-color 0.2s;
     padding: 0;

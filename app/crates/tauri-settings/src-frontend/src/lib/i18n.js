@@ -3,6 +3,7 @@ const translations = {
     // Sidebar
     'nav.layout': 'Layout',
     'nav.hotkeys': 'Hotkeys',
+    'nav.theme': 'Theme',
     'nav.dictionary': 'Dictionary',
     'nav.about': 'About',
     'sidebar.title': 'Settings',
@@ -22,6 +23,14 @@ const translations = {
     'hotkeys.desc': 'Configure keyboard shortcuts.',
     'hotkeys.toggle': 'Toggle Bangla/English',
     'hotkeys.toggle.hint': 'Shortcut to switch between Bangla and system keyboard',
+
+    // Theme page
+    'theme.title': 'Theme',
+    'theme.desc': 'Choose your preferred appearance.',
+    'theme.dark': 'Dark',
+    'theme.dark.desc': 'Easy on the eyes, great for night use.',
+    'theme.light': 'Light',
+    'theme.light.desc': 'Clean and bright, great for daytime use.',
 
     // Dictionary page
     'dictionary.title': 'Dictionary',
@@ -82,6 +91,7 @@ const translations = {
     // Sidebar
     'nav.layout': 'লেআউট',
     'nav.hotkeys': 'হটকি',
+    'nav.theme': 'থিম',
     'nav.dictionary': 'অভিধান',
     'nav.about': 'সম্পর্কে',
     'sidebar.title': 'সেটিংস',
@@ -101,6 +111,14 @@ const translations = {
     'hotkeys.desc': 'কীবোর্ড শর্টকাট কনফিগার করুন।',
     'hotkeys.toggle': 'বাংলা/ইংরেজি টগল',
     'hotkeys.toggle.hint': 'বাংলা এবং সিস্টেম কীবোর্ডের মধ্যে পরিবর্তন করার শর্টকাট',
+
+    // Theme page
+    'theme.title': 'থিম',
+    'theme.desc': 'আপনার পছন্দের চেহারা বেছে নিন।',
+    'theme.dark': 'ডার্ক',
+    'theme.dark.desc': 'চোখের জন্য আরামদায়ক, রাতে ব্যবহারের জন্য দারুণ।',
+    'theme.light': 'লাইট',
+    'theme.light.desc': 'পরিষ্কার এবং উজ্জ্বল, দিনের বেলা ব্যবহারের জন্য দারুণ।',
 
     // Dictionary page
     'dictionary.title': 'অভিধান',
