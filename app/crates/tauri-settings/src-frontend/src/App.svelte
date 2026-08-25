@@ -15,8 +15,8 @@
   let layoutMode = $state('phonetic');
   let showKeyboard = $state(true);
   let shiftPreview = $state(false);
-  let hotkeyToggle = $state('ctrl+space');
   let currentTheme = $state('dark');
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   // Load preferences from backend on startup
   $effect(() => {
@@ -82,13 +82,6 @@
     { value: 'phonetic', label: 'Phonetic (Avro)' },
     { value: 'unibijoy', label: 'UniBijoy' },
     { value: 'national', label: 'National (Jatiya)' },
-  ];
-
-  const hotkeyOptions = [
-    { value: 'ctrl+space', label: 'Ctrl + Space' },
-    { value: 'cmd+space', label: 'Cmd + Space' },
-    { value: 'f1', label: 'F1' },
-    { value: 'f12', label: 'F12' },
   ];
 
   const themeOptions = $derived([
@@ -165,21 +158,44 @@
 
     {:else if activeSection === 'hotkeys'}
       <div class="page">
-        <h1 class="page-title">Hotkeys</h1>
-        <p class="page-desc">Configure keyboard shortcuts.</p>
+        <h1 class="page-title">{t('hotkeys.title')}</h1>
+        <p class="page-desc">{t('hotkeys.desc')}</p>
 
         <section class="setting-group">
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-label">Toggle Bangla/English</span>
-              <span class="setting-hint">Shortcut to switch between Bangla and system keyboard</span>
-            </div>
-            <Select
-              options={hotkeyOptions}
-              value={hotkeyToggle}
-              onchange={(v) => hotkeyToggle = v}
-            />
+          <h3 class="hotkey-section-title">{t('hotkeys.switch.title')}</h3>
+          <p class="hotkey-section-desc">{t('hotkeys.switch.desc')}</p>
+          <div class="hotkey-list">
+            {#if isMac}
+              <div class="hotkey-item">
+                <kbd>Globe</kbd> / <kbd>Fn</kbd>
+                <span class="hotkey-item-desc">{t('hotkeys.mac.globe')}</span>
+              </div>
+              <div class="hotkey-item">
+                <kbd>Ctrl</kbd> + <kbd>Space</kbd>
+                <span class="hotkey-item-desc">{t('hotkeys.mac.ctrlspace')}</span>
+              </div>
+            {:else}
+              <div class="hotkey-item">
+                <kbd>Win</kbd> + <kbd>Space</kbd>
+                <span class="hotkey-item-desc">{t('hotkeys.win.winspace')}</span>
+              </div>
+              <div class="hotkey-item">
+                <kbd>Alt</kbd> + <kbd>Shift</kbd>
+                <span class="hotkey-item-desc">{t('hotkeys.win.altshift')}</span>
+              </div>
+            {/if}
           </div>
+        </section>
+
+        <section class="setting-group">
+          <h3 class="hotkey-section-title">{t('hotkeys.customize.title')}</h3>
+          <p class="hotkey-section-desc">
+            {#if isMac}
+              {t('hotkeys.customize.mac')}
+            {:else}
+              {t('hotkeys.customize.win')}
+            {/if}
+          </p>
         </section>
       </div>
 
@@ -322,6 +338,51 @@
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.6;
+  }
+
+  .hotkey-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .hotkey-section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .hotkey-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .hotkey-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .hotkey-item-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-left: var(--space-xs);
+  }
+
+  .hotkey-item kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
   }
 
   .loading-screen {

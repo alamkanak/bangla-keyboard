@@ -20,9 +20,16 @@ const translations = {
 
     // Hotkeys page
     'hotkeys.title': 'Hotkeys',
-    'hotkeys.desc': 'Configure keyboard shortcuts.',
-    'hotkeys.toggle': 'Toggle Bangla/English',
-    'hotkeys.toggle.hint': 'Shortcut to switch between Bangla and system keyboard',
+    'hotkeys.desc': 'System keyboard shortcuts for switching input methods.',
+    'hotkeys.switch.title': 'Switch between Bangla and English',
+    'hotkeys.switch.desc': 'Use these system shortcuts to toggle between Bangla Keyboard and your default input method.',
+    'hotkeys.mac.globe': 'Switch input source (recommended)',
+    'hotkeys.mac.ctrlspace': 'Switch input source (if enabled)',
+    'hotkeys.win.winspace': 'Cycle through input methods',
+    'hotkeys.win.altshift': 'Switch input language',
+    'hotkeys.customize.title': 'Customize shortcuts',
+    'hotkeys.customize.mac': 'You can change these in System Settings → Keyboard → Keyboard Shortcuts → Input Sources.',
+    'hotkeys.customize.win': 'You can change these in Settings → Time & Language → Typing → Advanced keyboard settings → Input language hot keys.',
 
     // Theme page
     'theme.title': 'Theme',
@@ -69,7 +76,7 @@ const translations = {
     'onboarding.enable.win.step2': 'Under "Preferred languages", click the "\u22EF" next to Bengali',
     'onboarding.enable.win.step3': 'Click "Language options", then "Add a keyboard"',
     'onboarding.enable.win.step4': 'Select "Bangla Keyboard" from the list',
-    'onboarding.enable.switchHint': 'Once enabled, press Ctrl+Space (or your configured hotkey) to switch between Bangla and English while typing in any app.',
+    'onboarding.enable.switchHint': 'Once enabled, use your system input source shortcut (Globe key on Mac, Win+Space on Windows) to switch between Bangla and English while typing in any app.',
 
     'onboarding.layout.title': 'Pick a layout',
     'onboarding.layout.desc': 'Choose how you want to type in Bangla. You can switch anytime.',
@@ -108,9 +115,16 @@ const translations = {
 
     // Hotkeys page
     'hotkeys.title': 'হটকি',
-    'hotkeys.desc': 'কীবোর্ড শর্টকাট কনফিগার করুন।',
-    'hotkeys.toggle': 'বাংলা/ইংরেজি টগল',
-    'hotkeys.toggle.hint': 'বাংলা এবং সিস্টেম কীবোর্ডের মধ্যে পরিবর্তন করার শর্টকাট',
+    'hotkeys.desc': 'ইনপুট পদ্ধতি পরিবর্তনের জন্য সিস্টেম কীবোর্ড শর্টকাট।',
+    'hotkeys.switch.title': 'বাংলা এবং ইংরেজির মধ্যে পরিবর্তন',
+    'hotkeys.switch.desc': 'বাংলা কীবোর্ড এবং আপনার ডিফল্ট ইনপুট পদ্ধতির মধ্যে টগল করতে এই সিস্টেম শর্টকাটগুলি ব্যবহার করুন।',
+    'hotkeys.mac.globe': 'ইনপুট সোর্স পরিবর্তন (প্রস্তাবিত)',
+    'hotkeys.mac.ctrlspace': 'ইনপুট সোর্স পরিবর্তন (সক্রিয় থাকলে)',
+    'hotkeys.win.winspace': 'ইনপুট পদ্ধতি চক্রাকারে পরিবর্তন',
+    'hotkeys.win.altshift': 'ইনপুট ভাষা পরিবর্তন',
+    'hotkeys.customize.title': 'শর্টকাট কাস্টমাইজ করুন',
+    'hotkeys.customize.mac': 'আপনি System Settings → Keyboard → Keyboard Shortcuts → Input Sources এ এগুলি পরিবর্তন করতে পারেন।',
+    'hotkeys.customize.win': 'আপনি Settings → Time & Language → Typing → Advanced keyboard settings → Input language hot keys এ এগুলি পরিবর্তন করতে পারেন।',
 
     // Theme page
     'theme.title': 'থিম',
@@ -157,7 +171,7 @@ const translations = {
     'onboarding.enable.win.step2': '"Preferred languages" এর অধীনে Bengali এর পাশে "⋯" ক্লিক করুন',
     'onboarding.enable.win.step3': '"Language options" ক্লিক করুন, তারপর "Add a keyboard"',
     'onboarding.enable.win.step4': 'তালিকা থেকে "Bangla Keyboard" নির্বাচন করুন',
-    'onboarding.enable.switchHint': 'সক্রিয় করার পর, যেকোনো অ্যাপে টাইপ করার সময় বাংলা এবং ইংরেজির মধ্যে পরিবর্তন করতে Ctrl+Space (বা আপনার কনফিগার করা হটকি) চাপুন।',
+    'onboarding.enable.switchHint': 'সক্রিয় করার পর, যেকোনো অ্যাপে টাইপ করার সময় বাংলা এবং ইংরেজির মধ্যে পরিবর্তন করতে সিস্টেম শর্টকাট ব্যবহার করুন (Mac এ Globe কী, Windows এ Win+Space)।',
 
     'onboarding.layout.title': 'একটি লেআউট বেছে নিন',
     'onboarding.layout.desc': 'আপনি কীভাবে বাংলায় টাইপ করতে চান তা বেছে নিন। আপনি যেকোনো সময় পরিবর্তন করতে পারেন।',
