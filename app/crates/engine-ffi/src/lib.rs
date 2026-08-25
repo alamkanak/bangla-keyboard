@@ -43,7 +43,7 @@ pub extern "C" fn bk_engine_shutdown() {
     *guard = None;
 }
 
-/// Set the layout mode: 0 = Phonetic, 1 = UniBijoy.
+/// Set the layout mode: 0 = Phonetic, 1 = UniBijoy, 2 = National.
 #[no_mangle]
 pub extern "C" fn bk_set_mode(mode: i32) {
     let mut guard = ENGINE.lock().unwrap();
@@ -51,13 +51,14 @@ pub extern "C" fn bk_set_mode(mode: i32) {
         let layout_mode = match mode {
             0 => LayoutMode::Phonetic,
             1 => LayoutMode::UniBijoy,
+            2 => LayoutMode::National,
             _ => return,
         };
         engine.set_mode(layout_mode);
     }
 }
 
-/// Get the current layout mode: 0 = Phonetic, 1 = UniBijoy.
+/// Get the current layout mode: 0 = Phonetic, 1 = UniBijoy, 2 = National.
 #[no_mangle]
 pub extern "C" fn bk_get_mode() -> i32 {
     let guard = ENGINE.lock().unwrap();
@@ -65,12 +66,14 @@ pub extern "C" fn bk_get_mode() -> i32 {
         Some(engine) => match engine.mode() {
             LayoutMode::Phonetic => 0,
             LayoutMode::UniBijoy => 1,
+            LayoutMode::National => 2,
         },
         None => -1,
     }
 }
 
-/// Handle a key press. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing, 3 = CommitReplaceLast.
+/// Handle a key press. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing,
+/// 3 = CommitReplaceLast, 4+ = CommitReplaceN (value - 4 = backspace count).
 #[no_mangle]
 pub extern "C" fn bk_handle_key(key: c_char, shift: bool) -> i32 {
     let mut guard = ENGINE.lock().unwrap();
@@ -81,13 +84,34 @@ pub extern "C" fn bk_handle_key(key: c_char, shift: bool) -> i32 {
             CommitAction::UpdatePreview => 1,
             CommitAction::Nothing => 2,
             CommitAction::CommitReplaceLast => 3,
+            CommitAction::CommitReplaceN { backspace_count } => 4 + backspace_count as i32,
         }
     } else {
         2
     }
 }
 
-/// Handle backspace. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing.
+/// Handle a key press with full modifier state (including AltGr).
+/// Returns same codes as bk_handle_key.
+#[no_mangle]
+pub extern "C" fn bk_handle_key_full(key: c_char, shift: bool, altgr: bool) -> i32 {
+    let mut guard = ENGINE.lock().unwrap();
+    if let Some(engine) = guard.as_mut() {
+        let ch = key as u8 as char;
+        match engine.handle_key_full(ch, shift, altgr) {
+            CommitAction::Commit => 0,
+            CommitAction::UpdatePreview => 1,
+            CommitAction::Nothing => 2,
+            CommitAction::CommitReplaceLast => 3,
+            CommitAction::CommitReplaceN { backspace_count } => 4 + backspace_count as i32,
+        }
+    } else {
+        2
+    }
+}
+
+/// Handle backspace. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing,
+/// 4+ = CommitReplaceN (value - 4 = backspace count).
 #[no_mangle]
 pub extern "C" fn bk_handle_backspace() -> i32 {
     let mut guard = ENGINE.lock().unwrap();
@@ -97,6 +121,7 @@ pub extern "C" fn bk_handle_backspace() -> i32 {
             CommitAction::UpdatePreview => 1,
             CommitAction::Nothing => 2,
             CommitAction::CommitReplaceLast => 0,
+            CommitAction::CommitReplaceN { backspace_count } => 4 + backspace_count as i32,
         }
     } else {
         2

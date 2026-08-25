@@ -41,9 +41,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let prefsPath = Self.preferencesPath()
             if let data = try? Data(contentsOf: URL(fileURLWithPath: prefsPath)),
                let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let layout = json["layout"] as? String, layout == "unibijoy" {
-                bk_set_mode(1)
-                NSLog("BanglaKeyboard: Mode set to UniBijoy")
+               let layout = json["layout"] as? String {
+                switch layout {
+                case "unibijoy":
+                    bk_set_mode(1)
+                    NSLog("BanglaKeyboard: Mode set to UniBijoy")
+                case "national":
+                    bk_set_mode(2)
+                    NSLog("BanglaKeyboard: Mode set to National")
+                default:
+                    NSLog("BanglaKeyboard: Mode set to Phonetic (default)")
+                }
             } else {
                 NSLog("BanglaKeyboard: Mode set to Phonetic (default)")
             }

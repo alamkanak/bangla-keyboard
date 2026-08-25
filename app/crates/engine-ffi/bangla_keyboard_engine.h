@@ -21,22 +21,30 @@ int32_t bk_engine_init(const char *data_dir);
 void bk_engine_shutdown(void);
 
 /**
- * Set the layout mode: 0 = Phonetic, 1 = UniBijoy.
+ * Set the layout mode: 0 = Phonetic, 1 = UniBijoy, 2 = National.
  */
 void bk_set_mode(int32_t mode);
 
 /**
- * Get the current layout mode: 0 = Phonetic, 1 = UniBijoy.
+ * Get the current layout mode: 0 = Phonetic, 1 = UniBijoy, 2 = National.
  */
 int32_t bk_get_mode(void);
 
 /**
- * Handle a key press. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing, 3 = CommitReplaceLast.
+ * Handle a key press. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing,
+ * 3 = CommitReplaceLast, 4+ = CommitReplaceN (value - 4 = backspace count).
  */
 int32_t bk_handle_key(char key, bool shift);
 
 /**
- * Handle backspace. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing.
+ * Handle a key press with full modifier state (including AltGr).
+ * Returns same codes as bk_handle_key.
+ */
+int32_t bk_handle_key_full(char key, bool shift, bool altgr);
+
+/**
+ * Handle backspace. Returns: 0 = Commit, 1 = UpdatePreview, 2 = Nothing,
+ * 4+ = CommitReplaceN (value - 4 = backspace count).
  */
 int32_t bk_handle_backspace(void);
 

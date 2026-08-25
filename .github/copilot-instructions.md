@@ -13,8 +13,8 @@ This is a production grade project for a bangla typing input method for mac + wi
 - Windows Default Keyboard Layout
 - Windows Keyboard Layout
 
-Most widely accepted ones are unibijoy and phonetic.
-The goal of this project is to create a mac/windows app that supports unibijoy and phonetic keyboard layouts for typing in Bangla. The app will allow users to switch between these layouts easily and provide a seamless typing experience across different platforms. This should be well integrated with operating system's input method framework to ensure compatibility and performance.
+Most widely accepted ones are unibijoy, National (Jatiya), and phonetic.
+The goal of this project is to create a mac/windows app that supports unibijoy, National (Jatiya), and phonetic keyboard layouts for typing in Bangla. The app will allow users to switch between these layouts easily and provide a seamless typing experience across different platforms. This should be well integrated with operating system's input method framework to ensure compatibility and performance.
 
 The IME application code lives in the `app/` folder. Other top-level folders (website, docs, etc.) may exist alongside it.
 
@@ -27,7 +27,7 @@ UX Design principles you must follow are in `docs/DESIGN.md`
 
 ## Features
 
-- Support for unibijoy and phonetic keyboard layouts for typing in Bangla.
+- Support for unibijoy, National (Jatiya), and phonetic keyboard layouts for typing in Bangla.
 - Seamless switching between keyboard layouts.
 - Integration with operating system's input method framework for compatibility and performance.
 - Support for multiple platforms (Mac and Windows).

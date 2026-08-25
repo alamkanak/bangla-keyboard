@@ -68,6 +68,10 @@ fn get_layouts() -> Vec<LayoutInfo> {
             mode: "unibijoy".to_string(),
             name: "UniBijoy".to_string(),
         },
+        LayoutInfo {
+            mode: "national".to_string(),
+            name: "National (Jatiya)".to_string(),
+        },
     ]
 }
 

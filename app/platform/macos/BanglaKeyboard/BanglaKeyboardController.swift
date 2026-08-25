@@ -18,7 +18,15 @@ class BanglaKeyboardController: IMKInputController {
         }
 
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        if modifiers.contains(.command) || modifiers.contains(.control) || modifiers.contains(.option) {
+        let isOption = modifiers.contains(.option)
+        let isNationalMode = bk_get_mode() == 2
+
+        // Command/Control always pass through. Option passes through unless in National mode.
+        if modifiers.contains(.command) || modifiers.contains(.control) {
+            commitComposition(client)
+            return false
+        }
+        if isOption && !isNationalMode {
             commitComposition(client)
             return false
         }
@@ -29,15 +37,26 @@ class BanglaKeyboardController: IMKInputController {
             if engineReady && bk_is_composing() {
                 return handleCommit(client)
             }
+            if engineReady && isNationalMode { bk_reset() }
             return false
         case 49: // Space
             if engineReady && bk_is_composing() {
                 return handleSpace(client)
             }
+            if engineReady && isNationalMode { bk_reset() }
             return false
         case 51: // Backspace
             if engineReady && bk_is_composing() {
                 return handleBackspace(client)
+            }
+            if engineReady && isNationalMode {
+                let action = bk_handle_backspace()
+                if action >= 4 {
+                    // CommitReplaceN: engine consumed the backspace logically
+                    // but since we commit immediately in National, the chars are already in the document.
+                    // We just let the OS handle the backspace naturally.
+                }
+                return false
             }
             return false
         case 53: // Escape
@@ -52,14 +71,17 @@ class BanglaKeyboardController: IMKInputController {
             break
         }
 
-        guard let chars = event.characters, let ch = chars.first, ch.isASCII else {
+        // When Option is held (AltGr for National), use the base character ignoring modifiers
+        let charSource = isOption ? event.charactersIgnoringModifiers : event.characters
+        guard let chars = charSource, let ch = chars.first, ch.isASCII else {
             return false
         }
 
         let shift = modifiers.contains(.shift)
+        let altgr = isOption
         if engineReady {
             let charVal = Int8(bitPattern: UInt8(ch.asciiValue ?? 0))
-            let action = bk_handle_key(charVal, shift)
+            let action = bk_handle_key_full(charVal, shift, altgr)
             if action == 1 { // UpdatePreview
                 if let preview = bk_get_preview() {
                     let text = String(cString: preview)
@@ -80,7 +102,21 @@ class BanglaKeyboardController: IMKInputController {
                     }
                 }
                 return true
-            } else if action == 3 { // CommitReplaceLast (unused now, kept for compat)
+            } else if action >= 4 { // CommitReplaceN
+                let backspaceCount = Int(action - 4)
+                if let preview = bk_get_preview() {
+                    let text = String(cString: preview)
+                    bk_free_string(preview)
+                    // Delete previous characters then insert new text
+                    for _ in 0..<backspaceCount {
+                        client.insertText("", replacementRange: NSRange(location: NSNotFound, length: 1))
+                    }
+                    if !text.isEmpty {
+                        client.insertText(text, replacementRange: NSRange(location: NSNotFound, length: NSNotFound))
+                    }
+                }
+                return true
+            } else if action == 3 { // CommitReplaceLast
                 if let preview = bk_get_preview() {
                     let text = String(cString: preview)
                     bk_free_string(preview)
@@ -259,6 +295,19 @@ class BanglaKeyboardController: IMKInputController {
         composingText = ""
         if engineReady {
             bk_reset()
+            reloadLayoutPreference()
+        }
+    }
+
+    private func reloadLayoutPreference() {
+        let prefsPath = AppDelegate.preferencesPath()
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: prefsPath)),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let layout = json["layout"] as? String else { return }
+        switch layout {
+        case "unibijoy": bk_set_mode(1)
+        case "national": bk_set_mode(2)
+        default: bk_set_mode(0)
         }
     }
 

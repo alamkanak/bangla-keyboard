@@ -68,6 +68,8 @@ const translations = {
     'onboarding.layout.phonetic.desc': 'Type romanized English and get Bangla automatically. Best for casual users.',
     'onboarding.layout.unibijoy': 'UniBijoy',
     'onboarding.layout.unibijoy.desc': 'Fixed key positions like the classic Bijoy layout. Best for professional typists.',
+    'onboarding.layout.national': 'National (Jatiya)',
+    'onboarding.layout.national.desc': 'Official Bangladesh standard (BDS 1738). Fixed layout with AltGr layer for rare characters.',
 
     'onboarding.theme.title': 'Select a theme',
     'onboarding.theme.desc': 'Choose your preferred appearance. You can change this later.',
@@ -145,6 +147,8 @@ const translations = {
     'onboarding.layout.phonetic.desc': 'রোমানাইজড ইংরেজি টাইপ করুন এবং স্বয়ংক্রিয়ভাবে বাংলা পান। সাধারণ ব্যবহারকারীদের জন্য সেরা।',
     'onboarding.layout.unibijoy': 'ইউনিবিজয়',
     'onboarding.layout.unibijoy.desc': 'ক্লাসিক বিজয় লেআউটের মতো নির্দিষ্ট কী পজিশন। পেশাদার টাইপিস্টদের জন্য সেরা।',
+    'onboarding.layout.national': 'জাতীয় (ন্যাশনাল)',
+    'onboarding.layout.national.desc': 'বাংলাদেশের সরকারি মান (BDS 1738)। AltGr লেয়ার সহ নির্দিষ্ট কী লেআউট।',
 
     'onboarding.theme.title': 'একটি থিম নির্বাচন করুন',
     'onboarding.theme.desc': 'আপনার পছন্দের চেহারা বেছে নিন। আপনি পরে এটি পরিবর্তন করতে পারেন।',

@@ -30,6 +30,7 @@
   const layoutOptions = $derived([
     { value: 'phonetic', label: t('onboarding.layout.phonetic'), description: t('onboarding.layout.phonetic.desc') },
     { value: 'unibijoy', label: t('onboarding.layout.unibijoy'), description: t('onboarding.layout.unibijoy.desc') },
+    { value: 'national', label: t('onboarding.layout.national'), description: t('onboarding.layout.national.desc') },
   ]);
 
   const themeOptions = $derived([

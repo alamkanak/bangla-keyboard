@@ -21,6 +21,9 @@ app/platform/windows/build/
 # Node
 node_modules/
 
+# Frontend build output
+app/crates/tauri-settings/src-frontend/dist/
+
 # Editor
 .vscode/settings.json
 *.swp

@@ -56,6 +56,16 @@
     showOnboarding = false;
   }
 
+  async function savePreference(key, value) {
+    try {
+      if (window.__TAURI_INTERNALS__) {
+        await window.__TAURI_INTERNALS__.invoke('update_preference', { key, value });
+      }
+    } catch (e) {
+      console.error('Failed to save preference:', e);
+    }
+  }
+
   const sidebarItems = $derived([
     { id: 'layout', icon: '⌨', label: t('nav.layout') },
     { id: 'hotkeys', icon: '⚡', label: t('nav.hotkeys') },
@@ -66,6 +76,7 @@
   const layoutOptions = [
     { value: 'phonetic', label: 'Phonetic (Avro)' },
     { value: 'unibijoy', label: 'UniBijoy' },
+    { value: 'national', label: 'National (Jatiya)' },
   ];
 
   const hotkeyOptions = [
@@ -105,7 +116,7 @@
             <Select
               options={layoutOptions}
               value={layoutMode}
-              onchange={(v) => layoutMode = v}
+              onchange={(v) => { layoutMode = v; savePreference('layout', v); }}
             />
           </div>
 

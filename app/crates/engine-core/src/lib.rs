@@ -2,6 +2,7 @@ pub mod autocorrect;
 pub mod buffer;
 pub mod dictionary;
 pub mod layout;
+pub mod national;
 pub mod phonetic;
 pub mod unibijoy;
 
@@ -9,6 +10,7 @@ pub mod unibijoy;
 pub enum LayoutMode {
     Phonetic,
     UniBijoy,
+    National,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -16,6 +18,8 @@ pub enum CommitAction {
     Commit,
     /// Replace the previously committed character with the new one
     CommitReplaceLast,
+    /// Delete `backspace_count` chars from committed text, then commit new text
+    CommitReplaceN { backspace_count: usize },
     UpdatePreview,
     Nothing,
 }
@@ -30,6 +34,7 @@ pub struct Engine {
     mode: LayoutMode,
     phonetic: phonetic::PhoneticEngine,
     unibijoy: unibijoy::UniBijoyEngine,
+    national: national::NationalEngine,
     buffer: buffer::ComposingBuffer,
 }
 
@@ -37,12 +42,14 @@ impl Engine {
     pub fn new(data_dir: &std::path::Path) -> Result<Self, Box<dyn std::error::Error>> {
         let phonetic = phonetic::PhoneticEngine::load(data_dir)?;
         let unibijoy = unibijoy::UniBijoyEngine::new();
+        let national = national::NationalEngine::new();
         let buffer = buffer::ComposingBuffer::new();
 
         Ok(Self {
             mode: LayoutMode::Phonetic,
             phonetic,
             unibijoy,
+            national,
             buffer,
         })
     }
@@ -57,18 +64,23 @@ impl Engine {
     }
 
     pub fn handle_key(&mut self, key: char, shift: bool) -> CommitAction {
+        self.handle_key_full(key, shift, false)
+    }
+
+    pub fn handle_key_full(&mut self, key: char, shift: bool, altgr: bool) -> CommitAction {
         match self.mode {
             LayoutMode::Phonetic => self.handle_phonetic_key(key),
             LayoutMode::UniBijoy => self.handle_unibijoy_key(key, shift),
+            LayoutMode::National => self.handle_national_key(key, shift, altgr),
         }
     }
 
     pub fn handle_backspace(&mut self) -> CommitAction {
-        if self.buffer.is_empty() {
-            return CommitAction::Nothing;
-        }
         match self.mode {
             LayoutMode::Phonetic => {
+                if self.buffer.is_empty() {
+                    return CommitAction::Nothing;
+                }
                 self.buffer.pop();
                 if self.buffer.is_empty() {
                     return CommitAction::Commit;
@@ -77,8 +89,8 @@ impl Engine {
                 self.buffer.set_preview(bangla);
                 CommitAction::UpdatePreview
             }
-            // UniBijoy never buffers, so backspace passes through to the app
             LayoutMode::UniBijoy => CommitAction::Nothing,
+            LayoutMode::National => self.handle_national_backspace(),
         }
     }
 
@@ -119,6 +131,7 @@ impl Engine {
     pub fn reset(&mut self) {
         self.buffer.clear();
         self.unibijoy.reset();
+        self.national.reset();
     }
 
     fn commit_current(&mut self) -> Option<String> {
@@ -142,16 +155,13 @@ impl Engine {
     fn handle_unibijoy_key(&mut self, key: char, shift: bool) -> CommitAction {
         if let Some((ch, replace_last)) = self.unibijoy.process_key(key, shift) {
             if replace_last {
-                // Vowel forming: replace the buffered hasanta with the full vowel
                 self.buffer.clear();
                 self.buffer.set_preview(ch);
                 CommitAction::Commit
             } else if ch == "\u{09CD}" {
-                // Hasanta: buffer it as marked text (don't commit yet)
                 self.buffer.set_preview(ch);
                 CommitAction::UpdatePreview
             } else {
-                // Normal character: commit any buffered hasanta + this char
                 let mut output = String::new();
                 if !self.buffer.is_empty() {
                     output.push_str(self.buffer.preview());
@@ -163,6 +173,36 @@ impl Engine {
             }
         } else {
             CommitAction::Nothing
+        }
+    }
+
+    fn handle_national_key(&mut self, key: char, shift: bool, altgr: bool) -> CommitAction {
+        use national::NationalAction;
+        match self.national.process_key(key, shift, altgr) {
+            NationalAction::Commit(text) => {
+                self.buffer.set_preview(text);
+                CommitAction::Commit
+            }
+            NationalAction::ReplaceAndCommit { backspace_count, text } => {
+                self.buffer.set_preview(text);
+                CommitAction::CommitReplaceN { backspace_count }
+            }
+            NationalAction::Nothing => CommitAction::Nothing,
+        }
+    }
+
+    fn handle_national_backspace(&mut self) -> CommitAction {
+        use national::NationalAction;
+        match self.national.handle_backspace() {
+            NationalAction::ReplaceAndCommit { backspace_count, text } => {
+                self.buffer.set_preview(text);
+                CommitAction::CommitReplaceN { backspace_count }
+            }
+            NationalAction::Nothing => CommitAction::Nothing,
+            NationalAction::Commit(text) => {
+                self.buffer.set_preview(text);
+                CommitAction::Commit
+            }
         }
     }
 }
