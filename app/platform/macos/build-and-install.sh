@@ -64,8 +64,7 @@ swiftc \
     -framework Cocoa \
     -framework InputMethodKit \
     -import-objc-header "$FFI_HEADER_DIR/bangla_keyboard_engine.h" \
-    -L "$APP_DIR/target/release" \
-    -lengine_ffi \
+    "$RUST_LIB" \
     -o "$APP_BUNDLE/Contents/MacOS/BanglaKeyboard" \
     "${SWIFT_FILES[@]}"
 
