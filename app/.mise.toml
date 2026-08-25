@@ -10,19 +10,32 @@ CARGO_INSTALL_ROOT = "{{config_root}}/.mise/cargo-bin"
 _.path = ["{{config_root}}/.mise/cargo-bin/bin"]
 
 [tasks.test]
-run = "cargo test --workspace"
+run = "cargo test -p engine-core -p engine-ffi"
 
 [tasks.dev]
 run = "cargo tauri dev"
 dir = "crates/tauri-settings"
 
 [tasks.lint]
-run = "cargo fmt --all && cargo clippy --workspace -- -D warnings"
+run = "cargo fmt --all && cargo clippy -p engine-core -p engine-ffi -- -D warnings"
+
+[tasks.build-engine]
+run = "cargo build -p engine-ffi --release"
 
 [tasks.build-macos]
-run = "xcodebuild -scheme BanglaKeyboard -configuration Debug"
-dir = "platform/macos"
+run = """
+cargo build -p engine-ffi --release
+echo "Rust engine built. Now build with Xcode:"
+echo "  cd platform/macos && xcodegen generate && xcodebuild -scheme BanglaKeyboard -configuration Release"
+"""
 
 [tasks.build-windows]
-run = "cmake -B build && cmake --build build"
-dir = "platform/windows"
+run = """
+cargo build -p engine-ffi --release
+echo "Rust engine built. Now build with CMake:"
+echo "  cd platform/windows && cmake -B build && cmake --build build --config Release"
+"""
+
+[tasks.build-frontend]
+run = "npm run build"
+dir = "crates/tauri-settings/src-frontend"

@@ -1,3 +1,5 @@
+# Bangla Keyboard Input Method Editor (IME) for Mac + Windows
+
 This is a production grade project for a bangla typing input method for mac + windows. Bangladesh supports many keyboard layouts:
 
 - Bijoy
@@ -23,7 +25,19 @@ To learn more about this project and bangla typing methods, have a look at
 
 UX Design principles you must follow are in `docs/DESIGN.md`
 
-# General Instructions
+## Features
+
+- Support for unibijoy and phonetic keyboard layouts for typing in Bangla.
+- Seamless switching between keyboard layouts.
+- Integration with operating system's input method framework for compatibility and performance.
+- Support for multiple platforms (Mac and Windows).
+- Onboarding flow experience after fresh install to:
+  - enable system-wide keyboard input method.
+  - teach users how to switch between keyboard layouts and use the app
+  - switch between bangla and english for the app language i18n support
+  - select theme
+
+## General Instructions
 
 - Use #context7 to get latest docs about any library or framework. You must now use #context7 to retrieve relevant information before you implement the task.
 - You must use TDD development approach. All features must have unit tests and integration tests.

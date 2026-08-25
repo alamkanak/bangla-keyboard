@@ -1,0 +1,13 @@
+[package]
+name = "engine-ffi"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+engine-core = { path = "../engine-core" }
+
+[build-dependencies]
+cbindgen = "0.27"

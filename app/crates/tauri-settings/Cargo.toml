@@ -1,0 +1,18 @@
+[package]
+name = "tauri-settings"
+version.workspace = true
+edition.workspace = true
+default-run = "tauri-settings"
+
+[dependencies]
+engine-core = { path = "../engine-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = { version = "2", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[[bin]]
+name = "tauri-settings"
+path = "src/main.rs"

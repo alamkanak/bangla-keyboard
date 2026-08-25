@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>en</string>
+		<key>CFBundleDisplayName</key>
+		<string>Bangla Keyboard</string>
+		<key>CFBundleExecutable</key>
+		<string>BanglaKeyboard</string>
+		<key>CFBundleIconFile</key>
+		<string>AppIcon</string>
+		<key>CFBundleIdentifier</key>
+		<string>dev.banglakeyboard.inputmethod.BanglaKeyboard</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>BanglaKeyboard</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>0.1.0</string>
+		<key>CFBundleVersion</key>
+		<string>1</string>
+		<key>LSBackgroundOnly</key>
+		<true />
+		<key>LSMinimumSystemVersion</key>
+		<string>13.0</string>
+		<key>NSPrincipalClass</key>
+		<string>IMKApplication</string>
+		<key>InputMethodConnectionName</key>
+		<string>dev.banglakeyboard.inputmethod.BanglaKeyboard_Connection</string>
+		<key>InputMethodServerControllerClass</key>
+		<string>BanglaKeyboardController</string>
+		<key>tsInputMethodCharacterRepertoireKey</key>
+		<array>
+			<string>Beng</string>
+		</array>
+		<key>tsInputMethodIconFileKey</key>
+		<string>AppIcon</string>
+		<key>ComponentInputModeDict</key>
+		<dict>
+			<key>tsInputModeListKey</key>
+			<dict>
+				<key>dev.banglakeyboard.inputmethod.BanglaKeyboard.Bangla</key>
+				<dict>
+					<key>TISInputSourceID</key>
+					<string>dev.banglakeyboard.inputmethod.BanglaKeyboard.Bangla</string>
+					<key>TISIntendedLanguage</key>
+					<string>bn</string>
+					<key>tsInputModeDefaultStateKey</key>
+					<true />
+					<key>tsInputModeScriptKey</key>
+					<string>smUnicodeScript</string>
+					<key>tsInputModeMenuIconFileKey</key>
+					<string>AppIcon</string>
+					<key>tsInputModePrimaryInScriptKey</key>
+					<true />
+					<key>tsInputModeIsNativeKey</key>
+					<true />
+					<key>tsInputModeAlternateMenuIconFileKey</key>
+					<string>AppIcon</string>
+					<key>tsInputModeCharacterRepertoireKey</key>
+					<array>
+						<string>Beng</string>
+					</array>
+					<key>tsInputModeKeyEquivalentModifiersKey</key>
+					<integer>0</integer>
+					<key>tsInputModeKeyEquivalentKey</key>
+					<string></string>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</plist>

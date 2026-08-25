@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Rust Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run tests
+        working-directory: app
+        run: cargo test -p engine-core -p engine-ffi
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Check formatting
+        working-directory: app
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        working-directory: app
+        run: cargo clippy -p engine-core -p engine-ffi -- -D warnings
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Rust engine
+        working-directory: app
+        run: cargo build -p engine-ffi --release
+      - name: Verify static library
+        run: test -f app/target/release/libengine_ffi.a
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build Rust engine
+        working-directory: app
+        run: cargo build -p engine-ffi --release
+      - name: Verify static library
+        run: Test-Path app/target/release/engine_ffi.lib
+
+  frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        working-directory: app/crates/tauri-settings/src-frontend
+        run: npm install
+      - name: Build
+        working-directory: app/crates/tauri-settings/src-frontend
+        run: npx vite build

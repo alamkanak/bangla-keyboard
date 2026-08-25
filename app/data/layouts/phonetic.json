@@ -1,0 +1,6 @@
+{
+    "name": "Phonetic (Avro)",
+    "version": "1.0",
+    "type": "phonetic",
+    "description": "Type romanized English and get Bangla transliteration"
+}
