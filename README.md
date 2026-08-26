@@ -46,45 +46,77 @@ mise run build-engine  # build FFI static library (release)
 
 The app has two parts: the **IME** (background input method) and the **Settings UI** (Tauri app).
 
-### Build & install the IME
+### Development
+
+#### Build & install the IME locally
 
 ```bash
 ./platform/macos/build-and-install.sh
 ```
 
-This compiles the Rust engine + Swift IMK shell, bundles data files, and copies the `.app` to `~/Library/Input Methods/`. After install:
+Compiles the Rust engine + Swift IMK shell, embeds the Settings app, and copies the `.app` to `~/Library/Input Methods/`. You then need to add the input source manually:
 
-1. Open **System Settings → Keyboard → Input Sources → Edit**
-2. Click **"+"**, select **"Bangla"** on the left, then **"Bangla Keyboard"** on the right
-3. Press **Ctrl+Space** (or globe key) to switch between English and Bangla
-4. Click the input method icon in the menu bar for **"Open Settings…"**
+1. System Settings → Keyboard → Input Sources → Edit → "+" → Bangla → Bangla Keyboard
+2. Press **Globe key** or **Ctrl+Space** to switch to Bangla
 
-If you change engine code (Rust) or the Swift shell, re-run the script to rebuild.
+Re-run the script after any engine (Rust) or Swift changes. The first time the IME starts and onboarding hasn't been completed, it automatically launches the Settings/Onboarding window.
 
-### Run the Settings UI (dev mode)
+#### Run the Settings UI (dev mode)
 
 ```bash
 mise run dev
 ```
 
-This launches the Tauri settings/onboarding window in dev mode with hot-reload. The settings app is independent of the IME — the IME handles keyboard input, the settings app configures preferences.
+Launches the Tauri settings/onboarding window with hot-reload. Independent of the IME — use this for iterating on the UI.
 
-### Restart fresh
+#### Clean slate
 
 ```bash
+killall BanglaKeyboard 2>/dev/null
+rm -rf ~/Library/Input\ Methods/BanglaKeyboard.app
 rm -rf ~/Library/Application\ Support/dev.banglakeyboard.settings
-sudo rm -rf /Users/raquib/Library/Input\ Methods/BanglaKeyboard.app
 ```
+
+The input source disappears after logging out and back in.
+
+### Production installer
+
+#### Build the .pkg
+
+```bash
+./platform/macos/package/build-pkg.sh
+```
+
+Builds the `.app` (if needed) and packages it into `target/macos-ime/BanglaKeyboard.pkg`. The installer:
+- Copies the `.app` to `~/Library/Input Methods/`
+- Runs `bangla-keyboard-register` to auto-register the input source
+- Shows a conclusion page telling the user to grant permission and log out/in
+
+No manual System Settings steps needed for the end user.
 
 ## Windows IME
 
+### Development
+
 ```bash
-mise run build-windows  # build Rust engine, then use CMake for the TSF DLL
-# After building:
-# 1. regsvr32 BanglaKeyboard.dll
-# 2. Settings → Time & Language → Language & Region → add Bengali keyboard
-# 3. Press Ctrl+Space to toggle
+mise run build-windows  # build Rust engine + CMake TSF DLL
+regsvr32 BanglaKeyboard.dll  # register manually for dev testing
+# Settings → Time & Language → Language & Region → add Bengali keyboard
+# Press Win+Space to switch
 ```
+
+Unregister with `regsvr32 /u BanglaKeyboard.dll`.
+
+### Production installer
+
+```bash
+# Requires WiX Toolset v4+ (https://wixtoolset.org)
+wix build -d BuildDir=target/release -d DataDir=data platform/windows/installer/Package.wxs -o target/BanglaKeyboard.msi
+```
+
+The `.msi` registers the TSF DLL automatically — no manual steps for the end user. After install, press **Win+Space** to switch to Bangla.
+
+Uninstall via **Settings → Apps → Bangla Keyboard → Uninstall**, or `msiexec /x BanglaKeyboard.msi`.
 
 ## Deploy
 

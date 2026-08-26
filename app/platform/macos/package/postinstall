@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# postinstall script for BanglaKeyboard .pkg installer
+# Installs to the current user's ~/Library/Input Methods/ (user-domain IME)
+
+SCRIPT_DIR="$(dirname "$0")"
+LOGIN_USER=$(/usr/bin/stat -f%Su /dev/console)
+USER_HOME=$(/usr/bin/dscl . -read /Users/"$LOGIN_USER" NFSHomeDirectory | awk '{print $2}')
+INSTALL_DIR="$USER_HOME/Library/Input Methods"
+APP_BUNDLE="$INSTALL_DIR/BanglaKeyboard.app"
+REGISTER="$APP_BUNDLE/Contents/MacOS/bangla-keyboard-register"
+
+# Kill any existing instance
+/usr/bin/sudo -u "$LOGIN_USER" /usr/bin/killall BanglaKeyboard 2>/dev/null || true
+
+# Create destination and copy the app
+mkdir -p "$INSTALL_DIR"
+rm -rf "$APP_BUNDLE"
+cp -R "$SCRIPT_DIR/BanglaKeyboard.app" "$INSTALL_DIR/"
+chown -R "$LOGIN_USER" "$APP_BUNDLE"
+
+# Register and enable the input source using the lightweight helper
+/usr/bin/sudo -u "$LOGIN_USER" "$REGISTER" --register-input-source 2>/dev/null || true
+/usr/bin/sudo -u "$LOGIN_USER" "$REGISTER" --enable-input-source 2>/dev/null || true
+/usr/bin/sudo -u "$LOGIN_USER" "$REGISTER" --select-input-source 2>/dev/null || true
+
+exit 0

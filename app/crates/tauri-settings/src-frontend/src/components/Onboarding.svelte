@@ -3,8 +3,9 @@
   import StepIndicator from './StepIndicator.svelte';
   import RadioCardGroup from './RadioCardGroup.svelte';
   import KeyboardViewer from './KeyboardViewer.svelte';
+  import TryTyping from './TryTyping.svelte';
   import { t, setLocale, getLocale } from '../lib/i18n.js';
-  import { Moon, Sun, Lightbulb } from 'phosphor-svelte';
+  import { Moon, Sun, Lightbulb, CheckCircle, WarningCircle, ArrowSquareOut } from 'phosphor-svelte';
 
   let { oncomplete } = $props();
 
@@ -12,14 +13,15 @@
   let language = $state('en');
   let layout = $state('phonetic');
   let theme = $state('dark');
-  let imeEnabled = $state(false);
+  let imeStatus = $state('checking'); // 'checking' | 'enabled' | 'installed-not-enabled' | 'not-installed'
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const steps = $derived([
     t('onboarding.step.language'),
-    t('onboarding.step.enable'),
+    t('onboarding.step.setup'),
     t('onboarding.step.layout'),
+    t('onboarding.step.try'),
     t('onboarding.step.theme'),
   ]);
 
@@ -55,17 +57,39 @@
     }
   }
 
-  async function enableIME() {
+  async function checkImeStatus() {
+    imeStatus = 'checking';
+    try {
+      if (window.__TAURI_INTERNALS__) {
+        const result = await window.__TAURI_INTERNALS__.invoke('check_ime_status');
+        imeStatus = result;
+      } else {
+        // Dev mode fallback
+        imeStatus = 'enabled';
+      }
+    } catch (e) {
+      console.error('Failed to check IME status:', e);
+      imeStatus = 'not-installed';
+    }
+  }
+
+  async function attemptEnableIME() {
     try {
       if (window.__TAURI_INTERNALS__) {
         await window.__TAURI_INTERNALS__.invoke('enable_ime');
+        imeStatus = 'enabled';
       }
-      imeEnabled = true;
     } catch (e) {
       console.error('Failed to enable IME:', e);
-      imeEnabled = true; // Mark as done so user can proceed
     }
   }
+
+  // Check IME status when entering the setup step
+  $effect(() => {
+    if (step === 1) {
+      checkImeStatus();
+    }
+  });
 
   function next() {
     if (step < totalSteps - 1) {
@@ -114,39 +138,78 @@
 
     {:else if step === 1}
       <div class="step-page">
-        <h2 class="step-title">{t('onboarding.enable.title')}</h2>
-        <p class="step-desc">{t('onboarding.enable.desc')}</p>
+        <h2 class="step-title">{t('onboarding.setup.title')}</h2>
+        <p class="step-desc">{t('onboarding.setup.desc')}</p>
 
-        <div class="enable-action">
-          <Button variant={imeEnabled ? 'secondary' : 'primary'} size="lg" onclick={enableIME}>
-            {imeEnabled ? t('onboarding.enable.enabled') : t('onboarding.enable.button')}
-          </Button>
+        <div class="status-card">
+          {#if imeStatus === 'checking'}
+            <div class="status-row">
+              <div class="status-spinner"></div>
+              <span class="status-text">{t('onboarding.setup.checking')}</span>
+            </div>
+          {:else if imeStatus === 'enabled'}
+            <div class="status-row status-success">
+              <CheckCircle size={20} weight="fill" />
+              <span class="status-text">{t('onboarding.setup.ready')}</span>
+            </div>
+          {:else}
+            <div class="status-row status-warning">
+              <WarningCircle size={20} weight="fill" />
+              <span class="status-text">{t('onboarding.setup.notReady')}</span>
+            </div>
+            {#if imeStatus === 'installed-not-enabled'}
+              <div class="status-action">
+                <Button variant="primary" size="md" onclick={attemptEnableIME}>
+                  {t('onboarding.setup.enableButton')}
+                </Button>
+              </div>
+            {/if}
+            <details class="manual-instructions">
+              <summary class="manual-summary">{t('onboarding.setup.manualTitle')}</summary>
+              <div class="instruction-card">
+                {#if isMac}
+                  <ol class="instruction-list">
+                    <li>{t('onboarding.enable.mac.step1')}</li>
+                    <li>{t('onboarding.enable.mac.step2')}</li>
+                    <li>{t('onboarding.enable.mac.step3')}</li>
+                    <li>{t('onboarding.enable.mac.step4')}</li>
+                  </ol>
+                {:else}
+                  <ol class="instruction-list">
+                    <li>{t('onboarding.enable.win.step1')}</li>
+                    <li>{t('onboarding.enable.win.step2')}</li>
+                    <li>{t('onboarding.enable.win.step3')}</li>
+                    <li>{t('onboarding.enable.win.step4')}</li>
+                  </ol>
+                {/if}
+              </div>
+            </details>
+          {/if}
         </div>
 
-        <details class="manual-instructions">
-          <summary class="manual-summary">{t('onboarding.enable.manual')}</summary>
-          <div class="instruction-card">
+        <div class="hotkeys-section">
+          <h3 class="hotkeys-title">{t('onboarding.setup.hotkeysTitle')}</h3>
+          <div class="hotkey-cards">
             {#if isMac}
-              <ol class="instruction-list">
-                <li>{t('onboarding.enable.mac.step1')}</li>
-                <li>{t('onboarding.enable.mac.step2')}</li>
-                <li>{t('onboarding.enable.mac.step3')}</li>
-                <li>{t('onboarding.enable.mac.step4')}</li>
-              </ol>
+              <div class="hotkey-card">
+                <kbd class="hotkey-kbd">🌐</kbd>
+                <span class="hotkey-label">{t('hotkeys.mac.globe')}</span>
+              </div>
+              <div class="hotkey-card">
+                <kbd class="hotkey-kbd">⌃ Space</kbd>
+                <span class="hotkey-label">{t('hotkeys.mac.ctrlspace')}</span>
+              </div>
             {:else}
-              <ol class="instruction-list">
-                <li>{t('onboarding.enable.win.step1')}</li>
-                <li>{t('onboarding.enable.win.step2')}</li>
-                <li>{t('onboarding.enable.win.step3')}</li>
-                <li>{t('onboarding.enable.win.step4')}</li>
-              </ol>
+              <div class="hotkey-card">
+                <kbd class="hotkey-kbd">Win + Space</kbd>
+                <span class="hotkey-label">{t('hotkeys.win.winspace')}</span>
+              </div>
+              <div class="hotkey-card">
+                <kbd class="hotkey-kbd">Alt + Shift</kbd>
+                <span class="hotkey-label">{t('hotkeys.win.altshift')}</span>
+              </div>
             {/if}
           </div>
-        </details>
-
-        <div class="switch-hint">
-          <div class="hint-icon"><Lightbulb size={18} weight="fill" /></div>
-          <p class="hint-text">{t('onboarding.enable.switchHint')}</p>
         </div>
       </div>
 
@@ -167,6 +230,13 @@
       </div>
 
     {:else if step === 3}
+      <div class="step-page">
+        <h2 class="step-title">{t('onboarding.try.title')}</h2>
+        <p class="step-desc">{t('onboarding.try.desc')}</p>
+        <TryTyping {layout} />
+      </div>
+
+    {:else if step === 4}
       <div class="step-page">
         <h2 class="step-title">{t('onboarding.theme.title')}</h2>
         <p class="step-desc">{t('onboarding.theme.desc')}</p>
@@ -273,10 +343,94 @@
     line-height: 1.5;
   }
 
-  .enable-action {
-    display: flex;
-    justify-content: center;
+  .status-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
     margin-bottom: var(--space-xl);
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .status-row.status-success {
+    color: var(--success);
+  }
+
+  .status-row.status-warning {
+    color: var(--warning, #f5a623);
+  }
+
+  .status-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .status-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .status-action {
+    margin-top: var(--space-lg);
+  }
+
+  .hotkeys-section {
+    margin-top: var(--space-lg);
+  }
+
+  .hotkeys-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .hotkey-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .hotkey-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .hotkey-kbd {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .hotkey-label {
+    font-size: 13px;
+    color: var(--text-secondary);
   }
 
   .manual-instructions {
@@ -334,29 +488,6 @@
     justify-content: center;
     font-size: 12px;
     font-weight: 600;
-  }
-
-  .switch-hint {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-md);
-    padding: var(--space-lg);
-    background: var(--info-subtle);
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(86, 194, 255, 0.2);
-  }
-
-  .hint-icon {
-    display: flex;
-    align-items: center;
-    color: var(--info);
-    line-height: 1;
-  }
-
-  .hint-text {
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.5;
   }
 
   .layout-preview {

@@ -6,6 +6,11 @@ const host = process.env.TAURI_DEV_HOST;
 export default defineConfig({
     plugins: [svelte()],
     clearScreen: false,
+    test: {
+        environment: 'jsdom',
+        setupFiles: ['./src/test-setup.js'],
+    },
+    resolve: process.env.VITEST ? { conditions: ['browser'] } : {},
     server: {
         port: 5173,
         strictPort: true,

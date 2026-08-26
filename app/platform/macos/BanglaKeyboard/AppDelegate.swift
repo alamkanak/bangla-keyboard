@@ -61,6 +61,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         server = IMKServer(name: connectionName, bundleIdentifier: bundleId)
         NSLog("BanglaKeyboard: IMKServer started")
+
+        // Auto-launch Settings/Onboarding on first run
+        if !Self.isOnboardingComplete() {
+            NSLog("BanglaKeyboard: Onboarding not complete, launching Settings")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                Self.launchSettingsApp()
+            }
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -71,5 +79,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let configDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             .appendingPathComponent("dev.banglakeyboard.settings")
         return configDir.appendingPathComponent("preferences.json").path
+    }
+
+    private static func isOnboardingComplete() -> Bool {
+        let path = preferencesPath()
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let complete = json["onboarding_complete"] as? Bool else {
+            return false
+        }
+        return complete
+    }
+
+    static func launchSettingsApp() {
+        let bundle = Bundle.main
+        let candidates = [
+            bundle.resourcePath! + "/BanglaKeyboardSettings.app",
+            (bundle.bundlePath as NSString).deletingLastPathComponent + "/BanglaKeyboardSettings.app",
+            "/Applications/Bangla Keyboard Settings.app",
+        ]
+
+        for path in candidates {
+            if FileManager.default.fileExists(atPath: path) {
+                NSWorkspace.shared.openApplication(
+                    at: URL(fileURLWithPath: path),
+                    configuration: .init()
+                )
+                return
+            }
+        }
+
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "dev.banglakeyboard.settings") {
+            NSWorkspace.shared.openApplication(at: url, configuration: .init())
+            return
+        }
+
+        NSLog("BanglaKeyboard: Settings app not found for onboarding")
     }
 }

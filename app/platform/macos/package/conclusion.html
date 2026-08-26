@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            font-size: 13px;
+            --text-color: #333;
+            --bg-step: #f5f5f7;
+            --bg-note: #fff3cd;
+            --border-note: #ffc107;
+            --kbd-bg: #e8e8ed;
+            --accent: #007aff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                --text-color: #e0e0e0;
+                --bg-step: #2c2c2e;
+                --bg-note: #3a3520;
+                --border-note: #a08520;
+                --kbd-bg: #3a3a3c;
+                --accent: #64b5f6;
+            }
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .step {
+            background: var(--bg-step);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+
+        .step-num {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .note {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: var(--bg-note);
+            border-radius: 8px;
+            border-left: 3px solid var(--border-note);
+        }
+
+        kbd {
+            background: var(--kbd-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>✅ Bangla Keyboard installed successfully!</h2>
+
+    <div class="step">
+        <span class="step-num">Step 1:</span>
+        macOS will ask permission to add "Bangla Keyboard" as an input source.
+        Click <strong>"Allow"</strong> when prompted.
+    </div>
+
+    <div class="step">
+        <span class="step-num">Step 2:</span>
+        <strong>Log out and log back in</strong> for macOS to fully activate the input method.
+        (Apple menu → Log Out)
+    </div>
+
+    <div class="step">
+        <span class="step-num">Step 3:</span>
+        After logging back in, press the <kbd>🌐 Globe</kbd> key or <kbd>Ctrl</kbd>+<kbd>Space</kbd>
+        to switch to Bangla Keyboard.
+    </div>
+
+    <div class="step">
+        <span class="step-num">Step 4:</span>
+        Click the input method icon in the menu bar and select
+        <strong>"Open Settings…"</strong> to configure your keyboard layout and preferences.
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> If Bangla Keyboard doesn't appear after logging back in, open
+        <strong>System Settings → Keyboard → Input Sources → Edit</strong>, click <strong>"+"</strong>,
+        find <strong>"Bangla"</strong> → <strong>"Bangla Keyboard"</strong> and add it manually.
+    </div>
+</body>
+
+</html>

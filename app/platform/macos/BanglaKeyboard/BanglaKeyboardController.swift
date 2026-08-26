@@ -252,32 +252,7 @@ class BanglaKeyboardController: IMKInputController {
     }
 
     @objc func openSettings(_ sender: Any?) {
-        let bundle = Bundle.main
-
-        // 1. Check inside IME bundle (production: embedded in Resources/)
-        let embedded = bundle.resourcePath! + "/BanglaKeyboardSettings.app"
-        // 2. Sibling to the IME in ~/Library/Input Methods/
-        let sibling = (bundle.bundlePath as NSString).deletingLastPathComponent + "/BanglaKeyboardSettings.app"
-        // 3. /Applications
-        let global = "/Applications/Bangla Keyboard Settings.app"
-
-        for path in [embedded, sibling, global] {
-            if FileManager.default.fileExists(atPath: path) {
-                NSWorkspace.shared.openApplication(
-                    at: URL(fileURLWithPath: path),
-                    configuration: .init()
-                )
-                return
-            }
-        }
-
-        // Last resort: open the bundle identifier via Launch Services
-        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "dev.banglakeyboard.settings") {
-            NSWorkspace.shared.openApplication(at: url, configuration: .init())
-            return
-        }
-
-        NSLog("BanglaKeyboard: Settings app not found")
+        AppDelegate.launchSettingsApp()
     }
 
     @objc func showAbout(_ sender: Any?) {

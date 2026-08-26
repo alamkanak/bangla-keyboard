@@ -114,22 +114,85 @@ fn update_preference(state: tauri::State<AppState>, key: String, value: String) 
     state.save();
 }
 
-/// Register the IME with the OS. On macOS this copies the .app bundle to ~/Library/Input Methods/.
+/// Check if the IME is registered and enabled in the OS.
+#[tauri::command]
+fn check_ime_status() -> Result<String, String> {
+    #[cfg(target_os = "macos")]
+    {
+        let home = std::env::var("HOME").map_err(|e| e.to_string())?;
+        let exe = std::path::PathBuf::from(&home)
+            .join("Library/Input Methods/BanglaKeyboard.app/Contents/MacOS/bangla-keyboard-register");
+
+        if !exe.exists() {
+            return Ok("not-installed".into());
+        }
+
+        let output = std::process::Command::new(&exe)
+            .arg("--check-status")
+            .output()
+            .map_err(|e| e.to_string())?;
+
+        if output.status.success() {
+            Ok("enabled".into())
+        } else {
+            Ok("installed-not-enabled".into())
+        }
+    }
+    #[cfg(target_os = "windows")]
+    {
+        use winreg::enums::*;
+        use winreg::RegKey;
+
+        let hkcr = RegKey::predef(HKEY_CLASSES_ROOT);
+        match hkcr.open_subkey("CLSID\\{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}") {
+            Ok(_) => Ok("enabled".into()),
+            Err(_) => Ok("not-installed".into()),
+        }
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    {
+        Ok("unsupported-platform".into())
+    }
+}
+
+/// Attempt to enable the IME on macOS by running the registration commands.
 #[tauri::command]
 fn enable_ime() -> Result<String, String> {
     #[cfg(target_os = "macos")]
     {
         let home = std::env::var("HOME").map_err(|e| e.to_string())?;
-        let input_methods_dir = PathBuf::from(&home).join("Library/Input Methods");
-        let _ = fs::create_dir_all(&input_methods_dir);
+        let exe = PathBuf::from(&home)
+            .join("Library/Input Methods/BanglaKeyboard.app/Contents/MacOS/bangla-keyboard-register");
 
-        // In production, the IME .app is bundled as a resource.
-        // For now, just ensure the directory exists and report success.
-        Ok("Input Methods directory ready. IME will be registered on next build.".into())
+        if !exe.exists() {
+            return Err("BanglaKeyboard.app not found in ~/Library/Input Methods/".into());
+        }
+
+        // Register input source
+        let reg = std::process::Command::new(&exe)
+            .arg("--register-input-source")
+            .output()
+            .map_err(|e| e.to_string())?;
+
+        if !reg.status.success() {
+            return Err("Failed to register input source".into());
+        }
+
+        // Enable input source
+        let en = std::process::Command::new(&exe)
+            .arg("--enable-input-source")
+            .output()
+            .map_err(|e| e.to_string())?;
+
+        if !en.status.success() {
+            return Err("Failed to enable input source".into());
+        }
+
+        Ok("enabled".into())
     }
     #[cfg(not(target_os = "macos"))]
     {
-        Ok("IME registration is handled by the installer on Windows.".into())
+        Ok("handled-by-installer".into())
     }
 }
 
@@ -150,8 +213,42 @@ fn main() {
             get_preferences,
             complete_onboarding,
             update_preference,
+            check_ime_status,
             enable_ime,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_ime_status_returns_valid_status() {
+        let result = check_ime_status();
+        assert!(result.is_ok());
+        let status = result.unwrap();
+        assert!(
+            ["enabled", "not-installed", "installed-not-enabled", "unsupported-platform"]
+                .contains(&status.as_str()),
+            "Unexpected status: {status}"
+        );
+    }
+
+    #[test]
+    fn app_preferences_default_values() {
+        let prefs = AppPreferences::default();
+        assert!(!prefs.onboarding_complete);
+        assert_eq!(prefs.language, "en");
+        assert_eq!(prefs.layout, "phonetic");
+        assert_eq!(prefs.theme, "dark");
+    }
+
+    #[test]
+    fn app_state_loads_defaults_for_missing_file() {
+        let state = AppState::load(PathBuf::from("/tmp/nonexistent-bangla-test-prefs.json"));
+        let prefs = state.prefs.lock().unwrap();
+        assert!(!prefs.onboarding_complete);
+    }
 }

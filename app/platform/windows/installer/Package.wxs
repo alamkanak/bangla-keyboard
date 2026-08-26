@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package
+        Name="Bangla Keyboard"
+        Manufacturer="Bangla Keyboard Project"
+        Version="0.1.0"
+        UpgradeCode="E7A1B2C3-D4E5-6789-ABCD-EF0123456789"
+        Language="1033"
+        Codepage="1252">
+
+        <MajorUpgrade
+            DowngradeErrorMessage="A newer version of Bangla Keyboard is already installed." />
+
+        <MediaTemplate EmbedCab="yes" />
+
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="Bangla Keyboard">
+                <Directory Id="DataFolder" Name="data">
+                    <Directory Id="AutocorrectFolder" Name="autocorrect" />
+                    <Directory Id="DictionaryFolder" Name="dictionary" />
+                    <Directory Id="LayoutsFolder" Name="layouts" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <Component Id="MainDLL" Bitness="always64">
+                <File Id="BanglaKeyboardDLL" Source="$(var.BuildDir)\BanglaKeyboard.dll"
+                    KeyPath="yes" SelfRegCost="1" />
+            </Component>
+            <Component Id="SettingsApp" Bitness="always64">
+                <File Id="SettingsExe" Source="$(var.BuildDir)\BanglaKeyboardSettings.exe" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="DataFiles" Directory="DataFolder">
+            <Component Id="AvroPhonetic" Bitness="always64">
+                <File Id="avrophonetic_json" Source="$(var.DataDir)\avrophonetic.json" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="AutocorrectFiles" Directory="AutocorrectFolder">
+            <Component Id="AutocorrectData" Bitness="always64">
+                <File Id="autocorrect_json" Source="$(var.DataDir)\autocorrect\autocorrect.json"
+                    KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="DictionaryFiles" Directory="DictionaryFolder">
+            <Component Id="DictionaryData" Bitness="always64">
+                <File Id="dictionary_json" Source="$(var.DataDir)\dictionary\dictionary.json"
+                    KeyPath="yes" />
+                <File Id="regex_json" Source="$(var.DataDir)\dictionary\regex.json" />
+                <File Id="suffix_json" Source="$(var.DataDir)\dictionary\suffix.json" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="LayoutFiles" Directory="LayoutsFolder">
+            <Component Id="LayoutData" Bitness="always64">
+                <File Id="national_json" Source="$(var.DataDir)\layouts\national.json" KeyPath="yes" />
+                <File Id="phonetic_json" Source="$(var.DataDir)\layouts\phonetic.json" />
+                <File Id="unibijoy_json" Source="$(var.DataDir)\layouts\unibijoy.json" />
+            </Component>
+        </ComponentGroup>
+
+        <Feature Id="ProductFeature" Title="Bangla Keyboard" Level="1">
+            <ComponentGroupRef Id="ProductComponents" />
+            <ComponentGroupRef Id="DataFiles" />
+            <ComponentGroupRef Id="AutocorrectFiles" />
+            <ComponentGroupRef Id="DictionaryFiles" />
+            <ComponentGroupRef Id="LayoutFiles" />
+        </Feature>
+
+        <!-- Register the TSF DLL after install -->
+        <CustomAction Id="RegisterTSF"
+            DllEntry="DllRegisterServer"
+            BinaryRef="BanglaKeyboardDLL" />
+        <CustomAction Id="UnregisterTSF"
+            DllEntry="DllUnregisterServer"
+            BinaryRef="BanglaKeyboardDLL" />
+
+        <InstallExecuteSequence>
+            <Custom Action="RegisterTSF" After="InstallFiles" Condition="NOT REMOVE" />
+            <Custom Action="UnregisterTSF" Before="RemoveFiles" Condition="REMOVE" />
+        </InstallExecuteSequence>
+
+    </Package>
+</Wix>
