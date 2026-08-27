@@ -10,6 +10,9 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tauri = { version = "2", features = [] }
 
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

@@ -6,16 +6,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Rust engine library
 set(RUST_TARGET_DIR "${CMAKE_SOURCE_DIR}/../../target")
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(RUST_LIB_DIR "${RUST_TARGET_DIR}/release")
-else()
-    set(RUST_LIB_DIR "${RUST_TARGET_DIR}/debug")
-endif()
+# Multi-config generators (Visual Studio) leave CMAKE_BUILD_TYPE empty; pick the
+# Rust profile dir from the build-time $<CONFIG> instead so Release/Debug both work.
+set(RUST_LIB_DIR "${RUST_TARGET_DIR}/$<IF:$<CONFIG:Debug>,debug,release>")
+
+# Locate cargo up-front so custom commands don't rely on MSBuild's inherited PATH.
+find_program(CARGO_EXECUTABLE cargo REQUIRED)
 
 # Build Rust engine
 add_custom_command(
     OUTPUT "${RUST_LIB_DIR}/engine_ffi.lib"
-    COMMAND cargo build -p engine-ffi $<$<CONFIG:Release>:--release>
+    COMMAND "${CARGO_EXECUTABLE}" build -p engine-ffi $<$<NOT:$<CONFIG:Debug>>:--release>
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../.."
     COMMENT "Building Rust engine"
 )
@@ -30,6 +31,8 @@ add_library(BanglaKeyboardTSF SHARED
     src/text_service.h
     src/key_event_sink.cpp
     src/composition.cpp
+    src/edit_session.cpp
+    src/edit_session.h
     src/globals.cpp
     src/globals.h
     src/register.cpp

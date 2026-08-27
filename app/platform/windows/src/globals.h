@@ -17,8 +17,9 @@ static const GUID GUID_Profile = {
     {0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x91}
 };
 
-// Language ID for Bengali
-static const LANGID LANG_BENGALI = MAKELANGID(LANG_BENGALI, SUBLANG_BENGALI_BANGLADESH);
+// LANG_BENGALI / SUBLANG_BENGALI_BANGLADESH are macros in winnt.h — name our
+// composed LANGID differently so the macro doesn't clobber the identifier.
+static const LANGID BANGLA_LANG_ID = MAKELANGID(LANG_BENGALI, SUBLANG_BENGALI_BANGLADESH);
 
 // Display name
 static const wchar_t* DISPLAY_NAME = L"Bangla Keyboard";

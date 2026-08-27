@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
     <Package
         Name="Bangla Keyboard"
         Manufacturer="Bangla Keyboard Project"
@@ -23,15 +24,55 @@
             </Directory>
         </StandardDirectory>
 
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ShortcutFolder" Name="Bangla Keyboard" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="AppDataFolder">
+            <Directory Id="SettingsAppDataFolder" Name="dev.banglakeyboard.settings" />
+        </StandardDirectory>
+
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
             <Component Id="MainDLL" Bitness="always64">
-                <File Id="BanglaKeyboardDLL" Source="$(var.BuildDir)\BanglaKeyboard.dll"
+                <File Id="BanglaKeyboardDLL" Source="$(var.DllDir)\BanglaKeyboard.dll"
                     KeyPath="yes" SelfRegCost="1" />
             </Component>
             <Component Id="SettingsApp" Bitness="always64">
-                <File Id="SettingsExe" Source="$(var.BuildDir)\BanglaKeyboardSettings.exe" />
+                <File Id="SettingsExe" Source="$(var.SettingsDir)\tauri-settings.exe" Name="BanglaKeyboardSettings.exe" />
             </Component>
         </ComponentGroup>
+
+        <ComponentGroup Id="StartMenuShortcuts" Directory="ShortcutFolder">
+            <Component Id="SettingsShortcut" Guid="B7A3E1F2-4C5D-4E9A-8B12-6F7D9A2C1E45">
+                <Shortcut Id="SettingsStartMenuShortcut"
+                    Name="Bangla Keyboard Settings"
+                    Description="Configure Bangla Keyboard layouts, theme, and language"
+                    Target="[INSTALLFOLDER]BanglaKeyboardSettings.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+                <RemoveFolder Id="RemoveShortcutFolder" On="uninstall" />
+                <RegistryValue Root="HKCU"
+                    Key="Software\Bangla Keyboard\Installed"
+                    Name="StartMenu" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <!-- On uninstall, sweep the Tauri Settings app's per-user config folder
+             (%APPDATA%\dev.banglakeyboard.settings, holding preferences.json).
+             util:RemoveFolderEx walks recursively so any future subfolders
+             Tauri may create also go away. -->
+        <ComponentGroup Id="AppDataCleanup" Directory="SettingsAppDataFolder">
+            <Component Id="RemoveSettingsAppData" Guid="C8D5A6B3-7F92-4A1C-BE47-2D8F1C5E90A3">
+                <RegistryValue Root="HKCU"
+                    Key="Software\Bangla Keyboard\Installed"
+                    Name="AppDataCleanup" Type="integer" Value="1" KeyPath="yes" />
+                <util:RemoveFolderEx On="uninstall" Property="SETTINGSAPPDATAPATH" />
+            </Component>
+        </ComponentGroup>
+
+        <SetProperty Id="SETTINGSAPPDATAPATH"
+            Value="[AppDataFolder]dev.banglakeyboard.settings"
+            After="CostFinalize"
+            Sequence="execute" />
 
         <ComponentGroup Id="DataFiles" Directory="DataFolder">
             <Component Id="AvroPhonetic" Bitness="always64">
@@ -50,38 +91,52 @@
             <Component Id="DictionaryData" Bitness="always64">
                 <File Id="dictionary_json" Source="$(var.DataDir)\dictionary\dictionary.json"
                     KeyPath="yes" />
-                <File Id="regex_json" Source="$(var.DataDir)\dictionary\regex.json" />
-                <File Id="suffix_json" Source="$(var.DataDir)\dictionary\suffix.json" />
+            </Component>
+            <Component Id="DictionaryRegex" Bitness="always64">
+                <File Id="regex_json" Source="$(var.DataDir)\dictionary\regex.json" KeyPath="yes" />
+            </Component>
+            <Component Id="DictionarySuffix" Bitness="always64">
+                <File Id="suffix_json" Source="$(var.DataDir)\dictionary\suffix.json" KeyPath="yes" />
             </Component>
         </ComponentGroup>
 
         <ComponentGroup Id="LayoutFiles" Directory="LayoutsFolder">
-            <Component Id="LayoutData" Bitness="always64">
+            <Component Id="LayoutNational" Bitness="always64">
                 <File Id="national_json" Source="$(var.DataDir)\layouts\national.json" KeyPath="yes" />
-                <File Id="phonetic_json" Source="$(var.DataDir)\layouts\phonetic.json" />
-                <File Id="unibijoy_json" Source="$(var.DataDir)\layouts\unibijoy.json" />
+            </Component>
+            <Component Id="LayoutPhonetic" Bitness="always64">
+                <File Id="phonetic_json" Source="$(var.DataDir)\layouts\phonetic.json" KeyPath="yes" />
+            </Component>
+            <Component Id="LayoutUniBijoy" Bitness="always64">
+                <File Id="unibijoy_json" Source="$(var.DataDir)\layouts\unibijoy.json" KeyPath="yes" />
             </Component>
         </ComponentGroup>
 
         <Feature Id="ProductFeature" Title="Bangla Keyboard" Level="1">
             <ComponentGroupRef Id="ProductComponents" />
+            <ComponentGroupRef Id="StartMenuShortcuts" />
+            <ComponentGroupRef Id="AppDataCleanup" />
             <ComponentGroupRef Id="DataFiles" />
             <ComponentGroupRef Id="AutocorrectFiles" />
             <ComponentGroupRef Id="DictionaryFiles" />
             <ComponentGroupRef Id="LayoutFiles" />
         </Feature>
 
-        <!-- Register the TSF DLL after install -->
-        <CustomAction Id="RegisterTSF"
-            DllEntry="DllRegisterServer"
-            BinaryRef="BanglaKeyboardDLL" />
-        <CustomAction Id="UnregisterTSF"
-            DllEntry="DllUnregisterServer"
-            BinaryRef="BanglaKeyboardDLL" />
+        <!-- SelfRegCost="1" on the TSF DLL <File> already schedules DllRegisterServer /
+             DllUnregisterServer via the built-in SelfRegModules / SelfUnregModules
+             standard actions, so no explicit CustomAction is required. -->
 
+        <!-- On a fresh install (not upgrades / repairs / uninstalls) launch the
+             Settings app so the onboarding wizard pops up. Runs unelevated as
+             the invoking user. -->
+        <CustomAction Id="LaunchSettingsApp"
+            FileRef="SettingsExe"
+            ExeCommand=""
+            Impersonate="yes"
+            Return="asyncNoWait" />
         <InstallExecuteSequence>
-            <Custom Action="RegisterTSF" After="InstallFiles" Condition="NOT REMOVE" />
-            <Custom Action="UnregisterTSF" Before="RemoveFiles" Condition="REMOVE" />
+            <Custom Action="LaunchSettingsApp" After="InstallFinalize"
+                Condition="NOT Installed AND NOT REMOVE" />
         </InstallExecuteSequence>
 
     </Package>

@@ -61,7 +61,7 @@ BOOL RegisterProfiles() {
 
     hr = pInputProcessProfiles->AddLanguageProfile(
         CLSID_BanglaKeyboard,
-        LANG_BENGALI,
+        BANGLA_LANG_ID,
         GUID_Profile,
         DISPLAY_NAME, (ULONG)wcslen(DISPLAY_NAME),
         dllPath, (ULONG)wcslen(dllPath),
@@ -90,9 +90,20 @@ BOOL RegisterCategories() {
                                   (void**)&pCategoryMgr);
     if (FAILED(hr)) return FALSE;
 
-    hr = pCategoryMgr->RegisterCategory(CLSID_BanglaKeyboard,
-                                         GUID_TFCAT_TIP_KEYBOARD,
-                                         CLSID_BanglaKeyboard);
+    // Register only categories whose contract the DLL can actually honor.
+    // Advertising extras (COMLESS / IMMERSIVESUPPORT / SECUREMODE /
+    // SYSTRAYSUPPORT) on Win10/11 causes the OS to try loading the TIP in
+    // restricted modes it isn't prepared for — the language picker then
+    // silently refuses to switch to it.
+    const GUID* kRegisterCategories[] = {
+        &GUID_TFCAT_TIP_KEYBOARD,
+        &GUID_TFCAT_TIPCAP_UIELEMENTENABLED,
+        &GUID_TFCAT_TIPCAP_INPUTMODECOMPARTMENT,
+    };
+    for (const GUID* cat : kRegisterCategories) {
+        HRESULT rhr = pCategoryMgr->RegisterCategory(CLSID_BanglaKeyboard, *cat, CLSID_BanglaKeyboard);
+        if (FAILED(rhr) && SUCCEEDED(hr)) hr = rhr;
+    }
 
     pCategoryMgr->Release();
     return SUCCEEDED(hr);
@@ -104,9 +115,21 @@ void UnregisterCategories() {
                                   CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
                                   (void**)&pCategoryMgr);
     if (SUCCEEDED(hr)) {
-        pCategoryMgr->UnregisterCategory(CLSID_BanglaKeyboard,
-                                          GUID_TFCAT_TIP_KEYBOARD,
-                                          CLSID_BanglaKeyboard);
+        // Sweep every category we've EVER registered (including the
+        // over-declared set from an earlier build) so a repair / uninstall
+        // clears stale registry entries left behind on the user's box.
+        const GUID* kCleanupCategories[] = {
+            &GUID_TFCAT_TIP_KEYBOARD,
+            &GUID_TFCAT_TIPCAP_UIELEMENTENABLED,
+            &GUID_TFCAT_TIPCAP_INPUTMODECOMPARTMENT,
+            &GUID_TFCAT_TIPCAP_SECUREMODE,
+            &GUID_TFCAT_TIPCAP_COMLESS,
+            &GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,
+            &GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,
+        };
+        for (const GUID* cat : kCleanupCategories) {
+            pCategoryMgr->UnregisterCategory(CLSID_BanglaKeyboard, *cat, CLSID_BanglaKeyboard);
+        }
         pCategoryMgr->Release();
     }
 }

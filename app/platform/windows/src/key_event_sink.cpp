@@ -67,8 +67,9 @@ STDMETHODIMP TextService::OnKeyDown(ITfContext* pContext, WPARAM wParam, LPARAM 
                 std::wstring wtext(wLen - 1, L'\0');
                 MultiByteToWideChar(CP_UTF8, 0, committed, -1, wtext.data(), wLen);
                 bk_free_string(committed);
-                EndComposition(pContext);
+                UpdateComposition(pContext, wtext.c_str());
             }
+            EndComposition(pContext);
             *pfEaten = TRUE;
         }
         return S_OK;
@@ -81,8 +82,9 @@ STDMETHODIMP TextService::OnKeyDown(ITfContext* pContext, WPARAM wParam, LPARAM 
                 std::wstring wtext(wLen - 1, L'\0');
                 MultiByteToWideChar(CP_UTF8, 0, committed, -1, wtext.data(), wLen);
                 bk_free_string(committed);
-                EndComposition(pContext);
+                UpdateComposition(pContext, wtext.c_str());
             }
+            EndComposition(pContext);
             *pfEaten = TRUE;
         }
         return S_OK;
@@ -156,26 +158,5 @@ STDMETHODIMP TextService::OnKeyUp(ITfContext* pContext, WPARAM wParam, LPARAM lP
 
 STDMETHODIMP TextService::OnPreservedKey(ITfContext* pContext, REFGUID rguid, BOOL* pfEaten) {
     *pfEaten = FALSE;
-    return S_OK;
-}
-
-// Composition helpers
-HRESULT TextService::StartComposition(ITfContext* pContext) {
-    // Request an edit session to start composition
-    // In a full implementation, this would use ITfInsertAtSelection
-    return S_OK;
-}
-
-HRESULT TextService::EndComposition(ITfContext* pContext) {
-    if (m_pComposition) {
-        m_pComposition->EndComposition(0); // ecWrite would come from edit session
-        m_pComposition->Release();
-        m_pComposition = nullptr;
-    }
-    return S_OK;
-}
-
-HRESULT TextService::UpdateComposition(ITfContext* pContext, const wchar_t* text) {
-    // In a full implementation, update the composition range with new text
     return S_OK;
 }

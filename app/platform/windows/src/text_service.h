@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <msctf.h>
+#include <string>
 #include "globals.h"
 
 extern "C" {
@@ -44,6 +45,13 @@ public:
     // ITfDisplayAttributeProvider
     STDMETHODIMP EnumDisplayAttributeInfo(IEnumTfDisplayAttributeInfo** ppEnum);
     STDMETHODIMP GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo** ppInfo);
+
+    // Composition workers — called from EditSession::DoEditSession once TSF
+    // hands us a TfEditCookie write token. Kept public so the helper class
+    // in edit_session.cpp can call in without a friend declaration.
+    HRESULT DoStartComposition(TfEditCookie ec, ITfContext* pContext);
+    HRESULT DoUpdateComposition(TfEditCookie ec, ITfContext* pContext, const std::wstring& text);
+    HRESULT DoEndComposition(TfEditCookie ec, ITfContext* pContext);
 
 private:
     HRESULT InitKeystrokeSink();
