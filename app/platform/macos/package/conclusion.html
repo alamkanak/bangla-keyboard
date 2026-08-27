@@ -6,61 +6,43 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--text-color);
-            line-height: 1.6;
+            color: var(--text);
+            line-height: 1.7;
             padding: 20px;
-            font-size: 13px;
-            --text-color: #333;
-            --bg-action: #fff0f0;
-            --border-action: #ff3b30;
-            --accent: #007aff;
+            font-size: 14px;
+            --text: #1d1d1f;
+            --text-dim: #86868b;
+            --num: #007aff;
         }
 
         @media (prefers-color-scheme: dark) {
             body {
-                --text-color: #e0e0e0;
-                --bg-action: #3a2020;
-                --border-action: #ff453a;
-                --accent: #64b5f6;
+                --text: #e0e0e0;
+                --text-dim: #98989f;
+                --num: #64d2ff;
             }
         }
 
         h2 {
             font-size: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        .action-box {
-            background: var(--bg-action);
-            border: 2px solid var(--border-action);
-            border-radius: 10px;
-            padding: 16px 20px;
-            font-size: 15px;
+        p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
         }
 
-        .action-box .num {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
-            text-align: center;
-            border-radius: 50%;
-            background: var(--border-action);
-            color: #fff;
+        p .num {
             font-weight: 700;
-            font-size: 13px;
-            margin-right: 8px;
+            color: var(--num);
+            margin-right: 4px;
         }
 
-        .action-box .action {
-            margin-bottom: 10px;
-        }
-
-        .action-box .sub {
+        .sub {
             font-size: 12px;
-            opacity: 0.7;
-            margin-top: 2px;
-            margin-left: 32px;
+            color: var(--text-dim);
+            margin: 2px 0 0 20px;
         }
     </style>
 </head>
@@ -68,16 +50,10 @@
 <body>
     <h2>✅ Installed! Two things left:</h2>
 
-    <div class="action-box">
-        <div class="action">
-            <span class="num">1</span>
-            <strong>Click "Allow"</strong> when macOS asks to add Bangla Keyboard
-        </div>
-        <div class="action">
-            <span class="num">2</span>
-            <strong>Log Out</strong> and log back in
-            <div class="sub">Apple menu → Log Out</div>
-        </div>
+    <p><span class="num">1.</span> <strong>Click "Allow"</strong> when macOS asks to add Bangla Keyboard</p>
+
+    <p><span class="num">2.</span> <strong>Log Out</strong> and log back in</p>
+    <p class="sub"> Apple menu → Log Out</p>
     </div>
 </body>
 

@@ -247,15 +247,14 @@
   .step-content {
     flex: 1;
     overflow-y: auto;
-    display: flex;
-    justify-content: center;
-    padding-top: var(--space-sm);
+    padding: var(--space-sm) 0 var(--space-xl);
   }
 
   .step-page {
     max-width: 520px;
     width: 100%;
-    padding: 0 var(--space-xl) var(--space-2xl);
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
   }
 
   .step-title {
