@@ -62,8 +62,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         server = IMKServer(name: connectionName, bundleIdentifier: bundleId)
         NSLog("BanglaKeyboard: IMKServer started")
 
-        // Auto-launch Settings/Onboarding on first run
-        if !Self.isOnboardingComplete() {
+        // Skip onboarding if launched immediately after install (before logout/login)
+        let markerPath = NSHomeDirectory() + "/.bangla-keyboard-needs-relogin"
+        if FileManager.default.fileExists(atPath: markerPath) {
+            try? FileManager.default.removeItem(atPath: markerPath)
+            NSLog("BanglaKeyboard: Pre-login launch, deferring onboarding until after logout/login")
+        } else if !Self.isOnboardingComplete() {
             NSLog("BanglaKeyboard: Onboarding not complete, launching Settings")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 Self.launchSettingsApp()

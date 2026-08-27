@@ -24,4 +24,8 @@ chown -R "$LOGIN_USER" "$APP_BUNDLE"
 /usr/bin/sudo -u "$LOGIN_USER" "$REGISTER" --enable-input-source 2>/dev/null || true
 /usr/bin/sudo -u "$LOGIN_USER" "$REGISTER" --select-input-source 2>/dev/null || true
 
+# Signal that a logout/login is needed before onboarding can run
+MARKER="$USER_HOME/.bangla-keyboard-needs-relogin"
+/usr/bin/sudo -u "$LOGIN_USER" /usr/bin/touch "$MARKER"
+
 exit 0

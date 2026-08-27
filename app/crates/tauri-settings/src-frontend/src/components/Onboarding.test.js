@@ -3,14 +3,6 @@ import { render, fireEvent, screen } from '@testing-library/svelte';
 import Onboarding from './Onboarding.svelte';
 
 beforeEach(() => {
-    // Mock Tauri internals
-    window.__TAURI_INTERNALS__ = {
-        invoke: vi.fn().mockImplementation((cmd) => {
-            if (cmd === 'check_ime_status') return Promise.resolve('enabled');
-            if (cmd === 'enable_ime') return Promise.resolve('enabled');
-            return Promise.resolve('');
-        }),
-    };
     Object.defineProperty(navigator, 'platform', { value: 'MacIntel', configurable: true });
 });
 
@@ -32,7 +24,7 @@ describe('Onboarding', () => {
         expect(title.textContent).toContain('Choose your language');
     });
 
-    it('navigates to setup step', async () => {
+    it('navigates to switching step', async () => {
         const { container } = render(Onboarding, { props: { oncomplete: vi.fn() } });
         const next = getNextButton(container);
         expect(next).toBeTruthy();
@@ -40,10 +32,10 @@ describe('Onboarding', () => {
         await fireEvent.click(next);
 
         const title = container.querySelector('.step-title');
-        expect(title.textContent).toContain('almost ready');
+        expect(title.textContent).toContain('Switching between');
     });
 
-    it('shows hotkeys on setup step', async () => {
+    it('shows hotkeys on switching step without enable button', async () => {
         const { container } = render(Onboarding, { props: { oncomplete: vi.fn() } });
         const next = getNextButton(container);
 
@@ -51,6 +43,10 @@ describe('Onboarding', () => {
 
         const hotkeyCards = container.querySelectorAll('.hotkey-card');
         expect(hotkeyCards.length).toBeGreaterThan(0);
+
+        // No enable button or status card should exist
+        const statusCard = container.querySelector('.status-card');
+        expect(statusCard).toBeNull();
     });
 
     it('calls oncomplete with preferences on finish', async () => {
@@ -78,13 +74,36 @@ describe('Onboarding', () => {
         );
     });
 
-    it('checks IME status when entering setup step', async () => {
+    it('does not invoke check_ime_status on switching step', async () => {
+        const mockInvoke = vi.fn();
+        window.__TAURI_INTERNALS__ = { invoke: mockInvoke };
+
         const { container } = render(Onboarding, { props: { oncomplete: vi.fn() } });
         const next = getNextButton(container);
-        expect(next).toBeTruthy();
-
         await fireEvent.click(next);
 
-        expect(window.__TAURI_INTERNALS__.invoke).toHaveBeenCalledWith('check_ime_status');
+        expect(mockInvoke).not.toHaveBeenCalledWith('check_ime_status');
+
+        delete window.__TAURI_INTERNALS__;
+    });
+
+    it('persists layout preference immediately when selected', async () => {
+        const mockInvoke = vi.fn().mockResolvedValue('');
+        window.__TAURI_INTERNALS__ = { invoke: mockInvoke };
+
+        const { container } = render(Onboarding, { props: { oncomplete: vi.fn() } });
+        // Navigate to layout step (step 2)
+        await fireEvent.click(getNextButton(container)); // → switching
+        await fireEvent.click(getNextButton(container)); // → layout
+
+        // Select 'unibijoy' radio card
+        const radioCards = container.querySelectorAll('[role="radio"], .radio-card');
+        const unibijoyCard = [...radioCards].find(el => el.textContent.includes('UniBijoy'));
+        if (unibijoyCard) {
+            await fireEvent.click(unibijoyCard);
+            expect(mockInvoke).toHaveBeenCalledWith('update_preference', { key: 'layout', value: 'unibijoy' });
+        }
+
+        delete window.__TAURI_INTERNALS__;
     });
 });

@@ -5,7 +5,7 @@
   import KeyboardViewer from './KeyboardViewer.svelte';
   import TryTyping from './TryTyping.svelte';
   import { t, setLocale, getLocale } from '../lib/i18n.js';
-  import { Moon, Sun, Lightbulb, CheckCircle, WarningCircle, ArrowSquareOut } from 'phosphor-svelte';
+  import { Moon, Sun } from 'phosphor-svelte';
 
   let { oncomplete } = $props();
 
@@ -13,13 +13,12 @@
   let language = $state('en');
   let layout = $state('phonetic');
   let theme = $state('dark');
-  let imeStatus = $state('checking'); // 'checking' | 'enabled' | 'installed-not-enabled' | 'not-installed'
 
   const totalSteps = 5;
 
   const steps = $derived([
     t('onboarding.step.language'),
-    t('onboarding.step.setup'),
+    t('onboarding.step.switching'),
     t('onboarding.step.layout'),
     t('onboarding.step.try'),
     t('onboarding.step.theme'),
@@ -43,6 +42,16 @@
 
   const isMac = $derived(navigator.platform?.toLowerCase().includes('mac') ?? false);
 
+  async function savePreference(key, value) {
+    try {
+      if (window.__TAURI_INTERNALS__) {
+        await window.__TAURI_INTERNALS__.invoke('update_preference', { key, value });
+      }
+    } catch (e) {
+      console.error('Failed to save preference:', e);
+    }
+  }
+
   function onLanguageSelect(value) {
     language = value;
     setLocale(value);
@@ -56,40 +65,6 @@
       document.documentElement.removeAttribute('data-theme');
     }
   }
-
-  async function checkImeStatus() {
-    imeStatus = 'checking';
-    try {
-      if (window.__TAURI_INTERNALS__) {
-        const result = await window.__TAURI_INTERNALS__.invoke('check_ime_status');
-        imeStatus = result;
-      } else {
-        // Dev mode fallback
-        imeStatus = 'enabled';
-      }
-    } catch (e) {
-      console.error('Failed to check IME status:', e);
-      imeStatus = 'not-installed';
-    }
-  }
-
-  async function attemptEnableIME() {
-    try {
-      if (window.__TAURI_INTERNALS__) {
-        await window.__TAURI_INTERNALS__.invoke('enable_ime');
-        imeStatus = 'enabled';
-      }
-    } catch (e) {
-      console.error('Failed to enable IME:', e);
-    }
-  }
-
-  // Check IME status when entering the setup step
-  $effect(() => {
-    if (step === 1) {
-      checkImeStatus();
-    }
-  });
 
   function next() {
     if (step < totalSteps - 1) {
@@ -138,57 +113,11 @@
 
     {:else if step === 1}
       <div class="step-page">
-        <h2 class="step-title">{t('onboarding.setup.title')}</h2>
-        <p class="step-desc">{t('onboarding.setup.desc')}</p>
-
-        <div class="status-card">
-          {#if imeStatus === 'checking'}
-            <div class="status-row">
-              <div class="status-spinner"></div>
-              <span class="status-text">{t('onboarding.setup.checking')}</span>
-            </div>
-          {:else if imeStatus === 'enabled'}
-            <div class="status-row status-success">
-              <CheckCircle size={20} weight="fill" />
-              <span class="status-text">{t('onboarding.setup.ready')}</span>
-            </div>
-          {:else}
-            <div class="status-row status-warning">
-              <WarningCircle size={20} weight="fill" />
-              <span class="status-text">{t('onboarding.setup.notReady')}</span>
-            </div>
-            {#if imeStatus === 'installed-not-enabled'}
-              <div class="status-action">
-                <Button variant="primary" size="md" onclick={attemptEnableIME}>
-                  {t('onboarding.setup.enableButton')}
-                </Button>
-              </div>
-            {/if}
-            <details class="manual-instructions">
-              <summary class="manual-summary">{t('onboarding.setup.manualTitle')}</summary>
-              <div class="instruction-card">
-                {#if isMac}
-                  <ol class="instruction-list">
-                    <li>{t('onboarding.enable.mac.step1')}</li>
-                    <li>{t('onboarding.enable.mac.step2')}</li>
-                    <li>{t('onboarding.enable.mac.step3')}</li>
-                    <li>{t('onboarding.enable.mac.step4')}</li>
-                  </ol>
-                {:else}
-                  <ol class="instruction-list">
-                    <li>{t('onboarding.enable.win.step1')}</li>
-                    <li>{t('onboarding.enable.win.step2')}</li>
-                    <li>{t('onboarding.enable.win.step3')}</li>
-                    <li>{t('onboarding.enable.win.step4')}</li>
-                  </ol>
-                {/if}
-              </div>
-            </details>
-          {/if}
-        </div>
+        <h2 class="step-title">{t('onboarding.switching.title')}</h2>
+        <p class="step-desc">{t('onboarding.switching.desc')}</p>
 
         <div class="hotkeys-section">
-          <h3 class="hotkeys-title">{t('onboarding.setup.hotkeysTitle')}</h3>
+          <h3 class="hotkeys-title">{t('onboarding.switching.hotkeysTitle')}</h3>
           <div class="hotkey-cards">
             {#if isMac}
               <div class="hotkey-card">
@@ -220,7 +149,7 @@
         <RadioCardGroup
           options={layoutOptions}
           value={layout}
-          onselect={(v) => layout = v}
+          onselect={(v) => { layout = v; savePreference('layout', v); }}
         />
         {#if layout === 'unibijoy' || layout === 'national'}
           <div class="layout-preview">
@@ -343,51 +272,6 @@
     line-height: 1.5;
   }
 
-  .status-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    margin-bottom: var(--space-xl);
-  }
-
-  .status-row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-  }
-
-  .status-row.status-success {
-    color: var(--success);
-  }
-
-  .status-row.status-warning {
-    color: var(--warning, #f5a623);
-  }
-
-  .status-text {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-
-  .status-spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .status-action {
-    margin-top: var(--space-lg);
-  }
-
   .hotkeys-section {
     margin-top: var(--space-lg);
   }
@@ -431,63 +315,6 @@
   .hotkey-label {
     font-size: 13px;
     color: var(--text-secondary);
-  }
-
-  .manual-instructions {
-    margin-bottom: var(--space-lg);
-  }
-
-  .manual-summary {
-    font-size: 13px;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    margin-bottom: var(--space-sm);
-    user-select: none;
-  }
-
-  .manual-summary:hover {
-    color: var(--text-secondary);
-  }
-
-  .instruction-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    margin-top: var(--space-sm);
-  }
-
-  .instruction-list {
-    list-style: none;
-    counter-reset: step;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    padding: 0;
-  }
-
-  .instruction-list li {
-    counter-increment: step;
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-md);
-    font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.5;
-  }
-
-  .instruction-list li::before {
-    content: counter(step);
-    min-width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--accent-subtle);
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
   }
 
   .layout-preview {
